@@ -1,0 +1,31 @@
+# CMake build output
+/build/
+/cmake-build-*/
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+
+# qmake and Qt Creator generated files
+/.qmake.stash
+/*.pro.user
+/*.pro.user.*
+/Makefile
+/Makefile.Debug
+/Makefile.Release
+/object_script.*
+/ui_*.h
+/moc_*.cpp
+/qrc_*.cpp
+/debug/
+/release/
+
+# Compiler output
+*.o
+*.obj
+*.exe
+
+# Project-local generated artifacts
+/bf_ui_widget.h
+/operation_log.txt
+/ProcessingTag.txt
+/*.lnk

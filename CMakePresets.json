@@ -1,0 +1,58 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "mingw-qt5.12.11-base",
+      "hidden": true,
+      "generator": "MinGW Makefiles",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": {
+          "type": "FILEPATH",
+          "value": "D:/Qt/Qt5.12.11/Tools/mingw730_64/bin/g++.exe"
+        },
+        "CMAKE_MAKE_PROGRAM": {
+          "type": "FILEPATH",
+          "value": "D:/Qt/Qt5.12.11/Tools/mingw730_64/bin/mingw32-make.exe"
+        },
+        "CMAKE_PREFIX_PATH": {
+          "type": "PATH",
+          "value": "D:/Qt/Qt5.12.11/5.12.11/mingw73_64"
+        }
+      }
+    },
+    {
+      "name": "mingw-qt5.12.11-debug",
+      "displayName": "Qt 5.12.11 MinGW 7.3 64-bit Debug",
+      "inherits": "mingw-qt5.12.11-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "mingw-qt5.12.11-release",
+      "displayName": "Qt 5.12.11 MinGW 7.3 64-bit Release",
+      "inherits": "mingw-qt5.12.11-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-mingw-qt5.12.11-debug",
+      "displayName": "Build Qt 5.12.11 MinGW Debug",
+      "configurePreset": "mingw-qt5.12.11-debug"
+    },
+    {
+      "name": "build-mingw-qt5.12.11-release",
+      "displayName": "Build Qt 5.12.11 MinGW Release",
+      "configurePreset": "mingw-qt5.12.11-release"
+    }
+  ]
+}
