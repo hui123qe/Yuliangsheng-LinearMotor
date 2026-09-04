@@ -99,6 +99,17 @@ add_custom_target(
 
 add_dependencies(Linear_motor_905 stop_running_Linear_motor_905)
 
+# Keep the runtime-editable ACS connection settings beside the executable.
+# Only create the build copy once so later CMake runs do not overwrite site settings.
+set(ACS_CONNECTION_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/acs_connection.ini")
+if(NOT EXISTS "${ACS_CONNECTION_CONFIG}")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/acs_connection.ini"
+        "${ACS_CONNECTION_CONFIG}"
+        COPYONLY
+    )
+endif()
+
 target_include_directories(
     Linear_motor_905
     PRIVATE

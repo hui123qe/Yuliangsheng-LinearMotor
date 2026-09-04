@@ -5,7 +5,10 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include "tt_tem.hpp"
+#include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
+#include <QSettings>
 
 
 QString SampleFrame::toCsvLine() const
@@ -398,8 +401,48 @@ void Widget::connect_ACS()
 {
     //连接设备
     hComm = ACSC_INVALID;
-    int port =701;
-    hComm = acsc_OpenCommEthernetTCP(const_cast<char*>("10.0.0.100"), port);
+
+    const QString configPath = QDir(QCoreApplication::applicationDirPath())
+            .filePath(QStringLiteral("acs_connection.ini"));
+    QSettings settings(configPath, QSettings::IniFormat);
+
+    QString mode = settings.value(QStringLiteral("acs/mode"),
+                                  QStringLiteral("simulator"))
+            .toString().trimmed().toLower();
+    bool useEthernetTcp = mode == QStringLiteral("ethernet_tcp")
+            || mode == QStringLiteral("ethernettcp")
+            || mode == QStringLiteral("real");
+
+    if (mode != QStringLiteral("simulator")
+            && mode != QStringLiteral("simulation")
+            && !useEthernetTcp) {
+        t_addlog(2, QString("ACS连接模式无效（%1），已回退到仿真模式。配置文件：%2")
+                 .arg(mode, configPath));
+        useEthernetTcp = false;
+    }
+
+    QString address = settings.value(QStringLiteral("acs/address"),
+                                     QStringLiteral("10.0.0.100"))
+            .toString().trimmed();
+    bool portOk = false;
+    int port = settings.value(QStringLiteral("acs/port"), 701).toInt(&portOk);
+
+    if (useEthernetTcp && (address.isEmpty() || !portOk || port < 1 || port > 65535)) {
+        t_addlog(2, QString("ACS EthernetTCP参数无效，已回退到仿真模式。配置文件：%1")
+                 .arg(configPath));
+        useEthernetTcp = false;
+    }
+
+    if (useEthernetTcp) {
+        QByteArray addressBytes = address.toLatin1();
+        hComm = acsc_OpenCommEthernetTCP(addressBytes.data(), port);
+        t_addlog(1, QString("ACS连接方式：EthernetTCP，地址：%1:%2")
+                 .arg(address).arg(port));
+    } else {
+        hComm = acsc_OpenCommSimulator();
+        t_addlog(1, QString("ACS连接方式：仿真，配置文件：%1").arg(configPath));
+    }
+
     if (hComm == ACSC_INVALID)
     {
         ui->zsd_enable1->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
