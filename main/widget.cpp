@@ -246,6 +246,8 @@ Widget::Widget(QWidget *parent)
       mGraph5_8(nullptr)
 {
     ui->setupUi(this);
+    configureResponsiveLayout();
+    on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
     log_init();    //日志初始化
     t_addlog(1,"日志系统初始化完成");
     chart_init();  //图表初始化
@@ -264,6 +266,92 @@ Widget::Widget(QWidget *parent)
 
     connect_ACS(); //连接控制器
 
+}
+
+void Widget::configureResponsiveLayout()
+{
+    const QList<QWidget *> dimensionLockedWidgets = {
+        ui->tabWidget,
+        ui->system_min,
+        ui->system_max,
+        ui->system_exit,
+        ui->start_stop,
+        ui->start_tips_normal,
+        ui->start_tips_warning,
+        ui->start_tips_wrong,
+        ui->start_tips_stop,
+        ui->zsd_enable1,
+        ui->zsd_enable2,
+        ui->zsd_move1,
+        ui->zsd_move2,
+        ui->zsd_tem1,
+        ui->zsd_tem2,
+        ui->zsd_current1,
+        ui->zsd_current2,
+        ui->zsd_flow1,
+        ui->zsd_flow2,
+        ui->zsd_air1,
+        ui->zsd_air2,
+        ui->zsd_gm1,
+        ui->zsd_gm2,
+        ui->label_5_1,
+        ui->label_5_2,
+        ui->label_5_3,
+        ui->label_5_4,
+        ui->label_5_5,
+        ui->label_5_6,
+        ui->label_5_7,
+        ui->label_5_8,
+        ui->label_1_1,
+        ui->label_1_2,
+        ui->label_2_1,
+        ui->label_2_2,
+        ui->label_2_3,
+        ui->label_2_4,
+        ui->label_3_1,
+        ui->label_3_2,
+        ui->label_4_1,
+        ui->label_4_2
+    };
+
+    setMinimumSize(0, 0);
+    setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+
+    const QList<QWidget *> childWidgets = findChildren<QWidget *>();
+    for (QWidget *childWidget : childWidgets)
+    {
+        if (dimensionLockedWidgets.contains(childWidget)
+                || childWidget->objectName().startsWith(QStringLiteral("qt_")))
+        {
+            continue;
+        }
+
+        childWidget->setMinimumSize(0, 0);
+        childWidget->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    }
+
+    const QList<QStackedWidget *> stackedWidgets = findChildren<QStackedWidget *>();
+    for (QStackedWidget *stackedWidget : stackedWidgets)
+    {
+        if (stackedWidget->objectName().startsWith(QStringLiteral("qt_")))
+        {
+            continue;
+        }
+
+        QSizePolicy stackedSizePolicy = stackedWidget->sizePolicy();
+        stackedSizePolicy.setHorizontalPolicy(QSizePolicy::Expanding);
+        stackedSizePolicy.setVerticalPolicy(QSizePolicy::Expanding);
+        stackedWidget->setSizePolicy(stackedSizePolicy);
+
+        for (int pageIndex = 0; pageIndex < stackedWidget->count(); ++pageIndex)
+        {
+            QWidget *pageWidget = stackedWidget->widget(pageIndex);
+            QSizePolicy pageSizePolicy = pageWidget->sizePolicy();
+            pageSizePolicy.setHorizontalPolicy(QSizePolicy::Expanding);
+            pageSizePolicy.setVerticalPolicy(QSizePolicy::Expanding);
+            pageWidget->setSizePolicy(pageSizePolicy);
+        }
+    }
 }
 
 Widget::~Widget()
@@ -886,7 +974,6 @@ void Widget::system_init()
 //控件设置初始化
 void Widget::widget_init()
 {
-    setWindowFlags(Qt::FramelessWindowHint); //去除窗口默认边框
     ui->tabWidget->setTabText(0, tr("开始"));
     ui->tabWidget->setTabText(1, tr("测试"));
     ui->tabWidget->setTabText(2, tr("设置"));
@@ -1183,59 +1270,59 @@ QScrollBar::handle:vertical {
     ui->start_tips_stop->setText(" ");
     ui->start_tips_stop->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->start_tips_stop->width() / 2));
-    ui->zsd_enable1->setFixedSize(50, 50);
+    ui->zsd_enable1->setFixedSize(30, 30);
     ui->zsd_enable1->setText(" ");
     ui->zsd_enable1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
-    ui->zsd_enable2->setFixedSize(50, 50);
+    ui->zsd_enable2->setFixedSize(30, 30);
     ui->zsd_enable2->setText(" ");
     ui->zsd_enable2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_enable2->width() / 2));
-    ui->zsd_move1->setFixedSize(50, 50);
+    ui->zsd_move1->setFixedSize(30, 30);
     ui->zsd_move1->setText(" ");
     ui->zsd_move1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_move1->width() / 2));
-    ui->zsd_move2->setFixedSize(50, 50);
+    ui->zsd_move2->setFixedSize(30, 30);
     ui->zsd_move2->setText(" ");
     ui->zsd_move2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_move2->width() / 2));
-    ui->zsd_tem1->setFixedSize(50, 50);
+    ui->zsd_tem1->setFixedSize(30, 30);
     ui->zsd_tem1->setText(" ");
     ui->zsd_tem1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_tem1->width() / 2));
-    ui->zsd_tem2->setFixedSize(50, 50);
+    ui->zsd_tem2->setFixedSize(30, 30);
     ui->zsd_tem2->setText(" ");
     ui->zsd_tem2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_tem2->width() / 2));
-    ui->zsd_current1->setFixedSize(50, 50);
+    ui->zsd_current1->setFixedSize(30, 30);
     ui->zsd_current1->setText(" ");
     ui->zsd_current1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_current1->width() / 2));
-    ui->zsd_current2->setFixedSize(50, 50);
+    ui->zsd_current2->setFixedSize(30, 30);
     ui->zsd_current2->setText(" ");
     ui->zsd_current2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_current2->width() / 2));
-    ui->zsd_flow1->setFixedSize(50, 50);
+    ui->zsd_flow1->setFixedSize(30, 30);
     ui->zsd_flow1->setText(" ");
     ui->zsd_flow1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_flow1->width() / 2));
-    ui->zsd_flow2->setFixedSize(50, 50);
+    ui->zsd_flow2->setFixedSize(30, 30);
     ui->zsd_flow2->setText(" ");
     ui->zsd_flow2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_flow2->width() / 2));
-    ui->zsd_air1->setFixedSize(50, 50);
+    ui->zsd_air1->setFixedSize(30, 30);
     ui->zsd_air1->setText(" ");
     ui->zsd_air1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_air1->width() / 2));
-    ui->zsd_air2->setFixedSize(50, 50);
+    ui->zsd_air2->setFixedSize(30, 30);
     ui->zsd_air2->setText(" ");
     ui->zsd_air2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_air2->width() / 2));
-    ui->zsd_gm1->setFixedSize(50, 50);
+    ui->zsd_gm1->setFixedSize(30, 30);
     ui->zsd_gm1->setText(" ");
     ui->zsd_gm1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_gm1->width() / 2));
-    ui->zsd_gm2->setFixedSize(50, 50);
+    ui->zsd_gm2->setFixedSize(30, 30);
     ui->zsd_gm2->setText(" ");
     ui->zsd_gm2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; "
      """   border: 2px solid black; ""}").arg(ui->zsd_gm2->width() / 2));
@@ -1623,23 +1710,23 @@ void Widget::getinfo()
 
     if(State!=16)
     {
-        ui->zsd_enable1->setStyleSheet("QLabel { background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_enable1->setStyleSheet("QLabel { background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
         ui->test_enable_label_0->setStyleSheet("background-color: green;");
     }
     else if(State==16)
     {
-        ui->zsd_enable1->setStyleSheet("QLabel { background-color: gray; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_enable1->setStyleSheet("QLabel { background-color: gray; ""border-radius: 15px; " "border: 2px solid black; ""}");
         ui->test_enable_label_0->setStyleSheet("background-color: gray;");
     }
 
     if(State1!=16)
     {
-        ui->zsd_enable2->setStyleSheet("QLabel { background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_enable2->setStyleSheet("QLabel { background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
         ui->test_enable_label_1->setStyleSheet("background-color: green;");
     }
     else if(State1==16)
     {
-        ui->zsd_enable2->setStyleSheet("QLabel { background-color: gray; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_enable2->setStyleSheet("QLabel { background-color: gray; ""border-radius: 15px; " "border: 2px solid black; ""}");
         ui->test_enable_label_1->setStyleSheet("background-color: gray;");
     }
 
@@ -1647,17 +1734,17 @@ void Widget::getinfo()
     //运动状态
     //    if(t_movestate0 == 33)
     //    {
-    //        ui->zsd_move1->setStyleSheet("QLabel { background-color: red; ""border-radius: 25px; " "border: 2px solid black; ""}");
+    //        ui->zsd_move1->setStyleSheet("QLabel { background-color: red; ""border-radius: 15px; " "border: 2px solid black; ""}");
     //    }else
     //    {
-    //        ui->zsd_move1->setStyleSheet("QLabel { background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+    //        ui->zsd_move1->setStyleSheet("QLabel { background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
     //    }
     //    if(t_movestate1 == 33)
     //    {
-    //        ui->zsd_move2->setStyleSheet("QLabel { background-color: red; ""border-radius: 25px; " "border: 2px solid black; ""}");
+    //        ui->zsd_move2->setStyleSheet("QLabel { background-color: red; ""border-radius: 15px; " "border: 2px solid black; ""}");
     //    }else
     //    {
-    //        ui->zsd_move2->setStyleSheet("QLabel { background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+    //        ui->zsd_move2->setStyleSheet("QLabel { background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
     //    }
 
 
@@ -1829,7 +1916,7 @@ void Widget::getinfo()
             if (m_abnorCurrent < std::abs(current1)) {
 
                 isCritical = true;
-                ui->zsd_current1->setStyleSheet("QLabel { background-color: red; border-radius: 25px; border: 2px solid black; }");
+                ui->zsd_current1->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(currentlogsign1)
                 {
                     qWarning()<<"电机1当前电流为"+QString::number(current1)+",设备停机下使能";
@@ -1842,7 +1929,7 @@ void Widget::getinfo()
             if (m_abnorCurrent2 < std::abs(current2)) {
 
                 isCritical = true;
-                ui->zsd_current2->setStyleSheet("QLabel { background-color: red; border-radius: 25px; border: 2px solid black; }");
+                ui->zsd_current2->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(currentlogsign2)
                 {
                     qWarning()<<"电机2当前电流为"+QString::number(current2)+",设备停机下使能";
@@ -1864,11 +1951,11 @@ void Widget::getinfo()
             ui->test_status4->setStyleSheet("color: yellow;");
             ui->test_status4->setText("告警");
             ui->zsd_current1->setStyleSheet((m_warnCurrent < std::abs(current1)) ?
-                                                "QLabel { background-color: yellow; border-radius: 25px; border: 2px solid black; }" :
-                                                "QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
+                                                "QLabel { background-color: yellow; border-radius: 15px; border: 2px solid black; }" :
+                                                "QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
             ui->zsd_current2->setStyleSheet((m_warnCurrent2 < std::abs(current2)) ?
-                                                "QLabel { background-color: yellow; border-radius: 25px; border: 2px solid black; }" :
-                                                "QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
+                                                "QLabel { background-color: yellow; border-radius: 15px; border: 2px solid black; }" :
+                                                "QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
             if(currentlogsign3)
             {
                 qWarning()<<"电机1当前电流为"+QString::number(current1);
@@ -1884,8 +1971,8 @@ void Widget::getinfo()
             // 完全正常状态
             ui->test_status4->setStyleSheet("color: blue;");
             ui->test_status4->setText("正常");
-            ui->zsd_current1->setStyleSheet("QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
-            ui->zsd_current2->setStyleSheet("QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
+            ui->zsd_current1->setStyleSheet("QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
+            ui->zsd_current2->setStyleSheet("QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
             if((!currentlogsign1)||(!currentlogsign2)||(!currentlogsign3))
             {
                 qInfo()<<"电机电流恢复正常";
@@ -1904,7 +1991,7 @@ void Widget::getinfo()
             if (m_abnorTemperature < std::abs(tem1)) {
 
                 isCritical = true;
-                ui->zsd_tem1->setStyleSheet("QLabel { background-color: red; border-radius: 25px; border: 2px solid black; }");
+                ui->zsd_tem1->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(temlogsign1)
                 {
                     qWarning()<<"电机1当前温度为"+QString::number(tem1)+",设备停机下使能";
@@ -1916,7 +2003,7 @@ void Widget::getinfo()
             // 处理电机2断电逻辑
             if (m_abnorTemperature2 < std::abs(tem2)) {
                 isCritical = true;
-                ui->zsd_tem2->setStyleSheet("QLabel { background-color: red; border-radius: 25px; border: 2px solid black; }");
+                ui->zsd_tem2->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(temlogsign2)
                 {
                     qWarning()<<"电机2当前温度为"+QString::number(tem2)+",设备停机下使能";
@@ -1938,11 +2025,11 @@ void Widget::getinfo()
             ui->test_status3->setStyleSheet("color: yellow;");
             ui->test_status3->setText("告警");
             ui->zsd_tem1->setStyleSheet((m_warnTemperature < std::abs(tem1)) ?
-                                            "QLabel { background-color: yellow; border-radius: 25px; border: 2px solid black; }" :
-                                            "QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
+                                            "QLabel { background-color: yellow; border-radius: 15px; border: 2px solid black; }" :
+                                            "QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
             ui->zsd_tem2->setStyleSheet((m_warnTemperature2 < std::abs(tem2)) ?
-                                            "QLabel { background-color: yellow; border-radius: 25px; border: 2px solid black; }" :
-                                            "QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
+                                            "QLabel { background-color: yellow; border-radius: 15px; border: 2px solid black; }" :
+                                            "QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
             if(temlogsign3)
             {
                 qWarning()<<"电机1当前温度为"+QString::number(tem1);
@@ -1958,8 +2045,8 @@ void Widget::getinfo()
             // 完全正常状态
             ui->test_status3->setStyleSheet("color: blue;");
             ui->test_status3->setText("正常");
-            ui->zsd_tem1->setStyleSheet("QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
-            ui->zsd_tem2->setStyleSheet("QLabel { background-color: green; border-radius: 25px; border: 2px solid black; }");
+            ui->zsd_tem1->setStyleSheet("QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
+            ui->zsd_tem2->setStyleSheet("QLabel { background-color: green; border-radius: 15px; border: 2px solid black; }");
             if((!temlogsign1)||(!temlogsign2)||(!temlogsign3))
             {
                 qInfo()<<"电机温度恢复正常";
@@ -1979,7 +2066,7 @@ void Widget::getinfo()
                 acsc_KillAll(hComm, NULL);
                 ui->label_50->setStyleSheet("QLabel {"" color: yellow; "" background-color: red;""}");
 
-                ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 25px; " "border: 2px solid black; ""}");
+                ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 15px; " "border: 2px solid black; ""}");
                 if(flowlogsign1)
                 {
                     qWarning()<<"电机1当前水流量为"+QString::number(Flowrate1)+",设备停机下使能";
@@ -1989,7 +2076,7 @@ void Widget::getinfo()
             }else
             {
                 ui->label_50->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
-                ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+                ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
                 if(!flowlogsign1)
                 {
                     qInfo()<<"电机1当前水流量恢复正常";
@@ -2004,7 +2091,7 @@ void Widget::getinfo()
                 acsc_DisableAll(hComm,NULL);
                 acsc_KillAll(hComm, NULL);
                 ui->label_55->setStyleSheet("QLabel {"" color: yellow; "" background-color: red;""}");
-                ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 25px; " "border: 2px solid black; ""}");
+                ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 15px; " "border: 2px solid black; ""}");
                 if(flowlogsign2)
                 {
                     qWarning()<<"电机2当前水流量为"+QString::number(Flowrate2)+"设备停机下使能";
@@ -2015,7 +2102,7 @@ void Widget::getinfo()
             else
             {
                 ui->label_55->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
-                ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+                ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
                 if(!flowlogsign2)
                 {
                     qInfo()<<"电机2当前水流量恢复正常";
@@ -2027,9 +2114,9 @@ void Widget::getinfo()
         {
             ui->label_50->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
             ui->label_55->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
-            ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+            ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
 
-            ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+            ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
         }
 
 
@@ -2044,7 +2131,7 @@ void Widget::getinfo()
         //                acsc_DisableAll(hComm,NULL);
         //                acsc_KillAll(hComm, NULL);
         //                ui->label_63->setStyleSheet("QLabel {"" color: yellow; "" background-color: red;""}");
-        //                ui->zsd_air1->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        //                ui->zsd_air1->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 15px; " "border: 2px solid black; ""}");
         //                if(atmlogsign1)
         //                {
         //                    qWarning()<<"电机1当前气压为"+QString::number(t_qiya_1)+",设备停机下使能";
@@ -2068,7 +2155,7 @@ void Widget::getinfo()
         //                acsc_DisableAll(hComm,NULL);
         //                acsc_KillAll(hComm, NULL);
         //                ui->label_65->setStyleSheet("QLabel {"" color: yellow; "" background-color: red;""}");
-        //                ui->zsd_air2->setStyleSheet("QLabel {"" background-color: red;""border-radius: 25px; " "border: 2px solid black; ""}");
+        //                ui->zsd_air2->setStyleSheet("QLabel {"" background-color: red;""border-radius: 15px; " "border: 2px solid black; ""}");
         //                if(atmlogsign2)
         //                {
         //                    qWarning()<<"电机2当前气压为"+QString::number(t_qiya_2)+",设备停机下使能";
@@ -2089,36 +2176,36 @@ void Widget::getinfo()
         //        }else
         //        {
         //            ui->label_63->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
-        //            ui->zsd_air1->setStyleSheet("QLabel {"" background-color: green;""border-radius: 25px; " "border: 2px solid black; ""}");
+        //            ui->zsd_air1->setStyleSheet("QLabel {"" background-color: green;""border-radius: 15px; " "border: 2px solid black; ""}");
         //            ui->label_65->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
-        //            ui->zsd_air2->setStyleSheet("QLabel {"" background-color: green;""border-radius: 25px; " "border: 2px solid black; ""}");
+        //            ui->zsd_air2->setStyleSheet("QLabel {"" background-color: green;""border-radius: 15px; " "border: 2px solid black; ""}");
         //        }
     }
     else
     {
         ui->test_status4->setStyleSheet("color:blue;");
         ui->test_status4->setText("正常");
-        ui->zsd_current1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
-        ui->zsd_current2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");        //恢复正常
+        ui->zsd_current1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
+        ui->zsd_current2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");        //恢复正常
 
 
         ui->test_status3->setStyleSheet("color:blue;");
         ui->test_status3->setText("正常");
-        ui->zsd_tem1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
-        ui->zsd_tem2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_tem1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
+        ui->zsd_tem2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
         ui->label_50->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
         ui->label_55->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
-        ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
 
-        ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
 
         ui->label_63->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
 
-        ui->zsd_air1->setStyleSheet("QLabel {"" background-color: green;""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_air1->setStyleSheet("QLabel {"" background-color: green;""border-radius: 15px; " "border: 2px solid black; ""}");
 
         ui->label_65->setStyleSheet("QLabel {"" color: black; "" background-color: white;""}");
 
-        ui->zsd_air2->setStyleSheet("QLabel {"" background-color: green;""border-radius: 25px; " "border: 2px solid black; ""}");
+        ui->zsd_air2->setStyleSheet("QLabel {"" background-color: green;""border-radius: 15px; " "border: 2px solid black; ""}");
     }
 }
 
@@ -2977,9 +3064,10 @@ void Widget::on_tabWidget_currentChanged(int index)
 
 void Widget::mousePressEvent(QMouseEvent *event)
 {
-    if (!isFullScreen() && event->button() == Qt::LeftButton) {
+    QWidget *topLevelWindow = window();
+    if (!topLevelWindow->isFullScreen() && event->button() == Qt::LeftButton) {
         m_isDragging = true;
-        m_dragStartPosition = event->globalPos() - this->pos();
+        m_dragStartPosition = event->globalPos() - topLevelWindow->pos();
         event->accept();
     }
     QWidget::mousePressEvent(event);
@@ -2988,9 +3076,10 @@ void Widget::mousePressEvent(QMouseEvent *event)
 
 void Widget::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!isFullScreen() && m_isDragging && event->buttons() & Qt::LeftButton) {
-        QPoint newPos = event->globalPos() - m_dragStartPosition;
-        this->move(newPos);
+    QWidget *topLevelWindow = window();
+    if (!topLevelWindow->isFullScreen() && m_isDragging && event->buttons() & Qt::LeftButton) {
+        const QPoint newPosition = event->globalPos() - m_dragStartPosition;
+        topLevelWindow->move(newPosition);
         event->accept();
     }
     QWidget::mouseMoveEvent(event);
@@ -2998,7 +3087,7 @@ void Widget::mouseMoveEvent(QMouseEvent *event)
 
 void Widget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (!isFullScreen() && event->button() == Qt::LeftButton) {
+    if (!window()->isFullScreen() && event->button() == Qt::LeftButton) {
         m_isDragging = false;
         event->accept();
     }
@@ -3007,17 +3096,18 @@ void Widget::mouseReleaseEvent(QMouseEvent *event)
 
 void Widget::on_system_min_clicked()
 {
-    this->showMinimized();
+    window()->showMinimized();
 }
 
 void Widget::on_system_max_clicked()
 {
-    if (this->windowState() & Qt::WindowFullScreen) {
-        this->showNormal();
+    QWidget *topLevelWindow = window();
+    if (topLevelWindow->windowState() & Qt::WindowFullScreen) {
+        topLevelWindow->showNormal();
         QIcon icon(":/image/restore.png");
         ui->system_max->setIcon(icon);
     } else {
-        this->showFullScreen();
+        topLevelWindow->showFullScreen();
         QIcon icon(":/image/max.png");
         ui->system_max->setIcon(icon);
     }
@@ -3027,9 +3117,8 @@ void Widget::on_system_exit_clicked()
 {
     if (logWindow) {
         logWindow->close();
-        delete logWindow;
     }
-    this->close();
+    window()->close();
 }
 
 void Widget::on_comboBox_currentIndexChanged(int index)
@@ -3043,31 +3132,6 @@ void Widget::on_comboBox_currentIndexChanged(int index)
     } else if(index==2)
     {
         final_axis=2;
-    }
-}
-
-//开始界面使能
-void Widget::on_start_enable_clicked()
-{
-    t_addlog(1,"电机上使能");
-    if(final_axis==2)
-    {
-        int Axes[] = { ACSC_AXIS_0,ACSC_AXIS_1, -1 };
-        acsc_EnableM(hComm,Axes,NULL);
-    }else{
-        acsc_Enable(hComm,final_axis,NULL);
-    }
-}
-
-//开始界面下使能
-void Widget::on_start_disable_clicked()
-{
-    t_addlog(1,"电机下使能");
-    if(final_axis==2)
-    {
-        acsc_DisableAll(hComm,NULL);
-    }else{
-        acsc_Disable(hComm,final_axis,NULL);
     }
 }
 

@@ -50,6 +50,8 @@ set_target_properties(
 add_executable(
     Linear_motor_905 WIN32
     main/main.cpp
+    main/mainwindow.cpp
+    main/mainwindow.h
     main/widget.cpp
     main/widget.h
     main/datacollectworker.cpp
@@ -75,6 +77,27 @@ add_executable(
     main/widget.ui
     search.qrc
 )
+
+find_program(
+    POWERSHELL_EXECUTABLE
+    NAMES powershell.exe
+    REQUIRED
+)
+
+add_custom_target(
+    stop_running_Linear_motor_905
+    COMMAND
+        "${POWERSHELL_EXECUTABLE}"
+        -NoProfile
+        -NonInteractive
+        -ExecutionPolicy Bypass
+        -File "${CMAKE_CURRENT_SOURCE_DIR}/cmake/StopRunningExecutable.ps1"
+        -ExecutablePath "${CMAKE_CURRENT_BINARY_DIR}/Linear_motor_905.exe"
+    COMMENT "Stopping the running Linear_motor_905 executable before build"
+    VERBATIM
+)
+
+add_dependencies(Linear_motor_905 stop_running_Linear_motor_905)
 
 target_include_directories(
     Linear_motor_905

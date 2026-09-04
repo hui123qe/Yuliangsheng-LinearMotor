@@ -217,10 +217,6 @@ private slots:
 
 
 
-    void on_start_enable_clicked();
-
-    void on_start_disable_clicked();
-
     void on_start_stop_clicked();
 
     void on_test_set_clicked();
@@ -349,6 +345,7 @@ private:
     void log_init();    //日志初始化
     void system_init(); //系统设置
     void widget_init(); //控件设置
+    void configureResponsiveLayout();
     void style_init();  //控件样式
     void chart_init();  //图表初始化
     void connect_init();//信号槽

@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Widget</class>
  <widget class="QWidget" name="Widget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>2450</width>
-    <height>1839</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Widget</string>
   </property>
@@ -42,7 +34,7 @@
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -67,7 +59,7 @@
           <item>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -243,7 +235,7 @@
        <item>
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -330,30 +322,18 @@
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
-       <property name="minimumSize">
-        <size>
-         <width>2380</width>
-         <height>1650</height>
-        </size>
-       </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
        <widget class="QWidget" name="page">
-        <layout class="QGridLayout" name="gridLayout_2">
+        <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,1,6">
          <item row="1" column="0">
           <widget class="QWidget" name="widget" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>150</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>150</height>
-            </size>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
@@ -361,7 +341,7 @@
               <item>
                <spacer name="horizontalSpacer">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -408,7 +388,7 @@
               <item>
                <spacer name="horizontalSpacer_5">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -455,7 +435,7 @@
               <item>
                <spacer name="horizontalSpacer_6">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -568,7 +548,7 @@
               <item>
                <spacer name="horizontalSpacer_7">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -681,7 +661,7 @@
               <item>
                <spacer name="horizontalSpacer_8">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -798,7 +778,7 @@
               <item>
                <spacer name="horizontalSpacer_9">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -816,35 +796,29 @@
          <item row="2" column="0">
           <widget class="QStackedWidget" name="stackedWidget_2">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_3">
             <layout class="QGridLayout" name="gridLayout_121">
              <item row="0" column="0">
               <layout class="QVBoxLayout" name="verticalLayout_26">
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_17">
+                <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="7,3">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_29">
+                  <layout class="QHBoxLayout" name="horizontalLayout_29" stretch="10,1">
                    <item>
                     <widget class="QFrame" name="frame_start">
-                     <property name="minimumSize">
-                      <size>
-                       <width>1600</width>
-                       <height>1100</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>1600</width>
-                       <height>1100</height>
-                      </size>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
                      </property>
                      <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
+                      <enum>QFrame::Shape::StyledPanel</enum>
                      </property>
                      <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
+                      <enum>QFrame::Shadow::Raised</enum>
                      </property>
                     </widget>
                    </item>
@@ -1009,7 +983,7 @@
                      <item>
                       <spacer name="verticalSpacer_11">
                        <property name="orientation">
-                        <enum>Qt::Vertical</enum>
+                        <enum>Qt::Orientation::Vertical</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1178,7 +1152,7 @@
                      <item>
                       <spacer name="verticalSpacer_14">
                        <property name="orientation">
-                        <enum>Qt::Vertical</enum>
+                        <enum>Qt::Orientation::Vertical</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1215,7 +1189,7 @@
                      <item>
                       <spacer name="verticalSpacer_12">
                        <property name="orientation">
-                        <enum>Qt::Vertical</enum>
+                        <enum>Qt::Orientation::Vertical</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1230,29 +1204,16 @@
                   </layout>
                  </item>
                  <item>
-                  <spacer name="horizontalSpacer_15">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_21">
+                  <layout class="QVBoxLayout" name="verticalLayout_21" stretch="12,1">
                    <item>
                     <layout class="QGridLayout" name="gridLayout_120">
                      <item row="0" column="0" colspan="3">
                       <widget class="QFrame" name="frame_10">
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_29">
                         <item row="0" column="3">
@@ -1320,7 +1281,7 @@
                         <item row="0" column="8">
                          <spacer name="horizontalSpacer_13">
                           <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
+                           <enum>Qt::Orientation::Horizontal</enum>
                           </property>
                           <property name="sizeHint" stdset="0">
                            <size>
@@ -1356,10 +1317,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_7">
                         <item row="0" column="0">
@@ -1399,10 +1360,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_8">
                         <item row="0" column="0">
@@ -1441,10 +1402,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_9">
                         <item row="0" column="0">
@@ -1477,10 +1438,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_10">
                         <item row="0" column="0">
@@ -1525,10 +1486,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_11">
                         <item row="0" column="0">
@@ -1567,10 +1528,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_12">
                         <item row="0" column="0">
@@ -1603,10 +1564,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_13">
                         <item row="0" column="0">
@@ -1651,10 +1612,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_14">
                         <item row="0" column="0">
@@ -1693,10 +1654,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_15">
                         <item row="0" column="0">
@@ -1729,10 +1690,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_16">
                         <item row="0" column="0">
@@ -1777,10 +1738,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_17">
                         <item row="0" column="0">
@@ -1819,10 +1780,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_18">
                         <item row="0" column="0">
@@ -1855,10 +1816,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_19">
                         <item row="0" column="0">
@@ -1903,10 +1864,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_20">
                         <item row="0" column="0">
@@ -1945,10 +1906,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_21">
                         <item row="0" column="0">
@@ -1981,10 +1942,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_22">
                         <item row="0" column="0">
@@ -2029,10 +1990,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_23">
                         <item row="0" column="0">
@@ -2071,10 +2032,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_24">
                         <item row="0" column="0">
@@ -2107,10 +2068,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_25">
                         <item row="0" column="0">
@@ -2155,10 +2116,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_26">
                         <item row="0" column="0">
@@ -2197,10 +2158,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_27">
                         <item row="0" column="0">
@@ -2233,10 +2194,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_30">
                         <item row="0" column="0">
@@ -2281,10 +2242,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_119">
                         <item row="0" column="0">
@@ -2323,10 +2284,10 @@
                         </size>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_28">
                         <item row="0" column="0">
@@ -2353,175 +2314,18 @@
                     </layout>
                    </item>
                    <item>
-                    <spacer name="verticalSpacer_2">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
                     <layout class="QVBoxLayout" name="verticalLayout_8">
                      <item>
-                      <widget class="QFrame" name="frame_23">
-                       <property name="maximumSize">
-                        <size>
-                         <width>610</width>
-                         <height>16777215</height>
-                        </size>
+                      <widget class="QPushButton" name="start_stop">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
                        </property>
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                       <property name="text">
+                        <string>急停</string>
                        </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
-                       </property>
-                       <layout class="QHBoxLayout" name="horizontalLayout_22">
-                        <item>
-                         <widget class="QLabel" name="label_29">
-                          <property name="font">
-                           <font>
-                            <pointsize>20</pointsize>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>电机动作</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_14">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>500</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QFrame" name="frame_24">
-                       <property name="maximumSize">
-                        <size>
-                         <width>610</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
-                       </property>
-                       <layout class="QGridLayout" name="gridLayout_6">
-                        <item row="0" column="0">
-                         <layout class="QHBoxLayout" name="horizontalLayout_5">
-                          <item>
-                           <spacer name="horizontalSpacer_10">
-                            <property name="orientation">
-                             <enum>Qt::Horizontal</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>114</width>
-                              <height>20</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                          <item>
-                           <layout class="QVBoxLayout" name="verticalLayout_7">
-                            <item>
-                             <widget class="QPushButton" name="start_enable">
-                              <property name="minimumSize">
-                               <size>
-                                <width>200</width>
-                                <height>80</height>
-                               </size>
-                              </property>
-                              <property name="font">
-                               <font>
-                                <pointsize>20</pointsize>
-                               </font>
-                              </property>
-                              <property name="text">
-                               <string>开始测试</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QPushButton" name="start_disable">
-                              <property name="minimumSize">
-                               <size>
-                                <width>200</width>
-                                <height>80</height>
-                               </size>
-                              </property>
-                              <property name="font">
-                               <font>
-                                <pointsize>20</pointsize>
-                               </font>
-                              </property>
-                              <property name="text">
-                               <string>停止测试</string>
-                              </property>
-                             </widget>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <spacer name="horizontalSpacer_11">
-                            <property name="orientation">
-                             <enum>Qt::Horizontal</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>113</width>
-                              <height>20</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                          <item>
-                           <widget class="QPushButton" name="start_stop">
-                            <property name="minimumSize">
-                             <size>
-                              <width>260</width>
-                              <height>260</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string>急停</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <spacer name="horizontalSpacer_12">
-                            <property name="orientation">
-                             <enum>Qt::Horizontal</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>114</width>
-                              <height>20</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                         </layout>
-                        </item>
-                       </layout>
                       </widget>
                      </item>
                     </layout>
@@ -2529,19 +2333,6 @@
                   </layout>
                  </item>
                 </layout>
-               </item>
-               <item>
-                <spacer name="verticalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>35</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
               </layout>
              </item>
@@ -2552,30 +2343,24 @@
              <item row="0" column="0">
               <layout class="QVBoxLayout" name="verticalLayout_29">
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_41">
+                <layout class="QHBoxLayout" name="horizontalLayout_41" stretch="5,2">
                  <item>
                   <layout class="QGridLayout" name="gridLayout_32">
                    <item row="0" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_39">
+                    <layout class="QHBoxLayout" name="horizontalLayout_39" stretch="10,1">
                      <item>
                       <widget class="QFrame" name="frame_test1">
-                       <property name="minimumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                       </widget>
                      </item>
@@ -2690,7 +2475,7 @@
                        <item>
                         <spacer name="verticalSpacer_8">
                          <property name="orientation">
-                          <enum>Qt::Vertical</enum>
+                          <enum>Qt::Orientation::Vertical</enum>
                          </property>
                          <property name="sizeHint" stdset="0">
                           <size>
@@ -2705,26 +2490,20 @@
                     </layout>
                    </item>
                    <item row="0" column="1">
-                    <layout class="QHBoxLayout" name="horizontalLayout_40">
+                    <layout class="QHBoxLayout" name="horizontalLayout_40" stretch="10,1">
                      <item>
                       <widget class="QFrame" name="frame_test2">
-                       <property name="minimumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                       </widget>
                      </item>
@@ -2915,7 +2694,7 @@
                        <item>
                         <spacer name="verticalSpacer_4">
                          <property name="orientation">
-                          <enum>Qt::Vertical</enum>
+                          <enum>Qt::Orientation::Vertical</enum>
                          </property>
                          <property name="sizeHint" stdset="0">
                           <size>
@@ -2930,26 +2709,20 @@
                     </layout>
                    </item>
                    <item row="1" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_38">
+                    <layout class="QHBoxLayout" name="horizontalLayout_38" stretch="10,1">
                      <item>
                       <widget class="QFrame" name="frame_test3">
-                       <property name="minimumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                       </widget>
                      </item>
@@ -3076,7 +2849,7 @@
                        <item>
                         <spacer name="verticalSpacer_9">
                          <property name="orientation">
-                          <enum>Qt::Vertical</enum>
+                          <enum>Qt::Orientation::Vertical</enum>
                          </property>
                          <property name="sizeHint" stdset="0">
                           <size>
@@ -3091,26 +2864,20 @@
                     </layout>
                    </item>
                    <item row="1" column="1">
-                    <layout class="QHBoxLayout" name="horizontalLayout_37">
+                    <layout class="QHBoxLayout" name="horizontalLayout_37" stretch="10,1">
                      <item>
                       <widget class="QFrame" name="frame_test4">
-                       <property name="minimumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>800</width>
-                         <height>600</height>
-                        </size>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                       </widget>
                      </item>
@@ -3237,7 +3004,7 @@
                        <item>
                         <spacer name="verticalSpacer_10">
                          <property name="orientation">
-                          <enum>Qt::Vertical</enum>
+                          <enum>Qt::Orientation::Vertical</enum>
                          </property>
                          <property name="sizeHint" stdset="0">
                           <size>
@@ -3254,27 +3021,14 @@
                   </layout>
                  </item>
                  <item>
-                  <spacer name="horizontalSpacer_18">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_23">
+                  <layout class="QVBoxLayout" name="verticalLayout_23" stretch="3,8">
                    <item>
                     <widget class="QFrame" name="frame_25">
                      <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
+                      <enum>QFrame::Shape::StyledPanel</enum>
                      </property>
                      <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
+                      <enum>QFrame::Shadow::Raised</enum>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_115">
                       <item row="0" column="0">
@@ -3294,10 +3048,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_67">
                            <item row="0" column="0">
@@ -3324,10 +3078,10 @@
                         <item row="5" column="1">
                          <widget class="QFrame" name="frame_37">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_45">
                            <item row="0" column="0">
@@ -3360,10 +3114,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_37">
                            <item row="0" column="0">
@@ -3396,10 +3150,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_69">
                            <item row="0" column="0">
@@ -3426,10 +3180,10 @@
                         <item row="5" column="2">
                          <widget class="QFrame" name="frame_38">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_46">
                            <item row="0" column="0">
@@ -3456,10 +3210,10 @@
                         <item row="3" column="1">
                          <widget class="QFrame" name="frame_31">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_39">
                            <item row="0" column="0">
@@ -3486,10 +3240,10 @@
                         <item row="4" column="1">
                          <widget class="QFrame" name="frame_39">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_47">
                            <item row="0" column="0">
@@ -3522,10 +3276,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_63">
                            <item row="0" column="0">
@@ -3552,10 +3306,10 @@
                         <item row="6" column="2">
                          <widget class="QFrame" name="frame_40">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_62">
                            <item row="0" column="0">
@@ -3582,10 +3336,10 @@
                         <item row="2" column="2">
                          <widget class="QFrame" name="frame_36">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_44">
                            <item row="0" column="0">
@@ -3612,10 +3366,10 @@
                         <item row="2" column="0">
                          <widget class="QFrame" name="frame_35">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_66">
                            <item row="0" column="0">
@@ -3648,10 +3402,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_34">
                            <item row="0" column="0">
@@ -3678,10 +3432,10 @@
                         <item row="4" column="2">
                          <widget class="QFrame" name="frame_42">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_50">
                            <item row="0" column="0">
@@ -3708,10 +3462,10 @@
                         <item row="1" column="0">
                          <widget class="QFrame" name="frame_46">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_68">
                            <item row="0" column="0">
@@ -3744,10 +3498,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_38">
                            <item row="0" column="0">
@@ -3780,10 +3534,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_35">
                            <item row="0" column="0">
@@ -3810,10 +3564,10 @@
                         <item row="3" column="2">
                          <widget class="QFrame" name="frame_32">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_40">
                            <item row="0" column="0">
@@ -3846,10 +3600,10 @@
                            </size>
                           </property>
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_36">
                            <item row="0" column="0">
@@ -3871,10 +3625,10 @@
                         <item row="6" column="1">
                          <widget class="QFrame" name="frame_45">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_59">
                            <item row="0" column="0">
@@ -3901,10 +3655,10 @@
                         <item row="2" column="1">
                          <widget class="QFrame" name="frame_33">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_41">
                            <item row="0" column="0">
@@ -3931,10 +3685,10 @@
                         <item row="4" column="0">
                          <widget class="QFrame" name="frame_34">
                           <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
+                           <enum>QFrame::Shape::StyledPanel</enum>
                           </property>
                           <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
+                           <enum>QFrame::Shadow::Raised</enum>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_65">
                            <item row="0" column="0">
@@ -3964,27 +3718,14 @@
                     </widget>
                    </item>
                    <item>
-                    <spacer name="verticalSpacer_3">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
                     <widget class="QFrame" name="frame">
                      <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
+                      <enum>QFrame::Shape::StyledPanel</enum>
                      </property>
                      <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
+                      <enum>QFrame::Shadow::Raised</enum>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_113">
+                     <layout class="QGridLayout" name="gridLayout_113" rowstretch="1,4">
                       <item row="0" column="0">
                        <layout class="QHBoxLayout" name="horizontalLayout_19">
                         <item>
@@ -4124,7 +3865,7 @@
                           <item row="1" column="2">
                            <spacer name="horizontalSpacer_16">
                             <property name="orientation">
-                             <enum>Qt::Horizontal</enum>
+                             <enum>Qt::Orientation::Horizontal</enum>
                             </property>
                             <property name="sizeHint" stdset="0">
                              <size>
@@ -4139,7 +3880,7 @@
                         <item>
                          <spacer name="horizontalSpacer_25">
                           <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
+                           <enum>Qt::Orientation::Horizontal</enum>
                           </property>
                           <property name="sizeHint" stdset="0">
                            <size>
@@ -4589,7 +4330,7 @@
                             <item>
                              <spacer name="horizontalSpacer_21">
                               <property name="orientation">
-                               <enum>Qt::Horizontal</enum>
+                               <enum>Qt::Orientation::Horizontal</enum>
                               </property>
                               <property name="sizeHint" stdset="0">
                                <size>
@@ -4757,7 +4498,7 @@
                                   <item>
                                    <spacer name="horizontalSpacer_20">
                                     <property name="orientation">
-                                     <enum>Qt::Horizontal</enum>
+                                     <enum>Qt::Orientation::Horizontal</enum>
                                     </property>
                                     <property name="sizeHint" stdset="0">
                                      <size>
@@ -4922,7 +4663,7 @@
                               <item>
                                <spacer name="horizontalSpacer_17">
                                 <property name="orientation">
-                                 <enum>Qt::Horizontal</enum>
+                                 <enum>Qt::Orientation::Horizontal</enum>
                                 </property>
                                 <property name="sizeHint" stdset="0">
                                  <size>
@@ -4943,35 +4684,9 @@
                      </layout>
                     </widget>
                    </item>
-                   <item>
-                    <spacer name="verticalSpacer_13">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
                   </layout>
                  </item>
                 </layout>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_5">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>17</width>
-                   <height>208</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
               </layout>
              </item>
@@ -4991,12 +4706,6 @@
                       <layout class="QGridLayout" name="gridLayout_82">
                        <item row="0" column="0" colspan="3">
                         <widget class="QFrame" name="frame_50">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>88</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -5004,20 +4713,14 @@
                           </size>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_52">
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_41">
-                            <property name="minimumSize">
-                             <size>
-                              <width>210</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5034,10 +4737,10 @@
                        <item row="1" column="0">
                         <widget class="QFrame" name="frame_59">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_64">
                           <item row="0" column="0">
@@ -5058,10 +4761,10 @@
                        <item row="1" column="1">
                         <widget class="QFrame" name="frame_51">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_53">
                           <item row="0" column="0">
@@ -5081,12 +4784,6 @@
                        </item>
                        <item row="1" column="2">
                         <widget class="QFrame" name="frame_52">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>80</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -5094,10 +4791,10 @@
                           </size>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_54">
                           <item row="0" column="0">
@@ -5118,20 +4815,14 @@
                        <item row="2" column="0">
                         <widget class="QFrame" name="frame_53">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_55">
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_44">
-                            <property name="minimumSize">
-                             <size>
-                              <width>250</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5148,20 +4839,14 @@
                        <item row="2" column="1">
                         <widget class="QFrame" name="frame_60">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_70">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_warn_tem1">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5181,20 +4866,14 @@
                        <item row="2" column="2">
                         <widget class="QFrame" name="frame_66">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_76">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_warn_tem2">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5214,20 +4893,14 @@
                        <item row="3" column="0">
                         <widget class="QFrame" name="frame_54">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_56">
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_45">
-                            <property name="minimumSize">
-                             <size>
-                              <width>250</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5244,20 +4917,14 @@
                        <item row="3" column="1">
                         <widget class="QFrame" name="frame_61">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_71">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_wrong_tem1">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5277,20 +4944,14 @@
                        <item row="3" column="2">
                         <widget class="QFrame" name="frame_67">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_77">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_wrong_tem2">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5310,20 +4971,14 @@
                        <item row="4" column="0">
                         <widget class="QFrame" name="frame_55">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_57">
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_46">
-                            <property name="minimumSize">
-                             <size>
-                              <width>250</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5340,20 +4995,14 @@
                        <item row="4" column="1">
                         <widget class="QFrame" name="frame_62">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_72">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_warn_current1">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5373,20 +5022,14 @@
                        <item row="4" column="2">
                         <widget class="QFrame" name="frame_68">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_78">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_warn_current2">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5406,20 +5049,14 @@
                        <item row="5" column="0">
                         <widget class="QFrame" name="frame_56">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_58">
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_56">
-                            <property name="minimumSize">
-                             <size>
-                              <width>250</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5436,20 +5073,14 @@
                        <item row="5" column="1">
                         <widget class="QFrame" name="frame_63">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_73">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_wrong_current1">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5469,20 +5100,14 @@
                        <item row="5" column="2">
                         <widget class="QFrame" name="frame_69">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_79">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_wrong_current2">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5502,20 +5127,14 @@
                        <item row="6" column="0">
                         <widget class="QFrame" name="frame_57">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_60">
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_57">
-                            <property name="minimumSize">
-                             <size>
-                              <width>255</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5532,20 +5151,14 @@
                        <item row="6" column="1">
                         <widget class="QFrame" name="frame_64">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_74">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_flow1">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5565,20 +5178,14 @@
                        <item row="6" column="2">
                         <widget class="QFrame" name="frame_70">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_80">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_flow2">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5597,17 +5204,11 @@
                        </item>
                        <item row="7" column="0">
                         <widget class="QFrame" name="frame_58">
-                         <property name="minimumSize">
-                          <size>
-                           <width>250</width>
-                           <height>0</height>
-                          </size>
-                         </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_61">
                           <item row="0" column="0">
@@ -5628,20 +5229,14 @@
                        <item row="7" column="1">
                         <widget class="QFrame" name="frame_65">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_75">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_press1">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5661,20 +5256,14 @@
                        <item row="7" column="2">
                         <widget class="QFrame" name="frame_71">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_81">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="spin_set_press2">
-                            <property name="minimumSize">
-                             <size>
-                              <width>300</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>300</width>
@@ -5697,12 +5286,6 @@
                       <layout class="QGridLayout" name="gridLayout_95">
                        <item row="0" column="0" colspan="2">
                         <widget class="QFrame" name="frame_72">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>88</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -5715,10 +5298,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_84">
                           <item row="0" column="0">
@@ -5738,12 +5321,6 @@
                        </item>
                        <item row="1" column="0">
                         <widget class="QFrame" name="frame_82">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>80</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -5751,10 +5328,10 @@
                           </size>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_94">
                           <item row="0" column="0">
@@ -5769,12 +5346,6 @@
                        </item>
                        <item row="1" column="1">
                         <widget class="QFrame" name="frame_73">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>80</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -5787,10 +5358,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_85">
                           <item row="0" column="0">
@@ -5816,10 +5387,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_86">
                           <item row="0" column="0">
@@ -5840,20 +5411,14 @@
                        <item row="2" column="1">
                         <widget class="QFrame" name="frame_78">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_90">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_prot_vel">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5872,10 +5437,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_87">
                           <item row="0" column="0">
@@ -5896,20 +5461,14 @@
                        <item row="3" column="1">
                         <widget class="QFrame" name="frame_79">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_91">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_prot_accdec">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5928,10 +5487,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_88">
                           <item row="0" column="0">
@@ -5952,20 +5511,14 @@
                        <item row="4" column="1">
                         <widget class="QFrame" name="frame_80">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_92">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_prot_movemax">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -5984,10 +5537,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_89">
                           <item row="0" column="0">
@@ -6008,20 +5561,14 @@
                        <item row="5" column="1">
                         <widget class="QFrame" name="frame_81">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_93">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_prot_movemin">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -6038,12 +5585,6 @@
                       <layout class="QGridLayout" name="gridLayout_96">
                        <item row="0" column="0" colspan="2">
                         <widget class="QFrame" name="frame_83">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>88</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -6056,10 +5597,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_97">
                           <item row="0" column="0">
@@ -6079,12 +5620,6 @@
                        </item>
                        <item row="1" column="0">
                         <widget class="QFrame" name="frame_84">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>80</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -6092,10 +5627,10 @@
                           </size>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_98">
                           <item row="0" column="0">
@@ -6110,12 +5645,6 @@
                        </item>
                        <item row="1" column="1">
                         <widget class="QFrame" name="frame_85">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>80</height>
-                          </size>
-                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -6128,10 +5657,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_99">
                           <item row="0" column="0">
@@ -6157,10 +5686,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_100">
                           <item row="0" column="0">
@@ -6181,20 +5710,14 @@
                        <item row="2" column="1">
                         <widget class="QFrame" name="frame_87">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_101">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_csv_size">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -6213,10 +5736,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_102">
                           <item row="0" column="0">
@@ -6237,20 +5760,14 @@
                        <item row="3" column="1">
                         <widget class="QFrame" name="frame_89">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_103">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_log_size">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -6269,10 +5786,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_116">
                           <item row="0" column="0">
@@ -6293,20 +5810,14 @@
                        <item row="4" column="1">
                         <widget class="QFrame" name="frame_98">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_112">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_save_time">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -6325,10 +5836,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_104">
                           <item row="0" column="0">
@@ -6349,20 +5860,14 @@
                        <item row="5" column="1">
                         <widget class="QFrame" name="frame_91">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_105">
                           <item row="0" column="0">
                            <widget class="QLineEdit" name="line_set_save_s">
-                            <property name="minimumSize">
-                             <size>
-                              <width>200</width>
-                              <height>0</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -6381,10 +5886,10 @@
                           </font>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_106">
                           <item row="0" column="0">
@@ -6405,20 +5910,14 @@
                        <item row="6" column="1">
                         <widget class="QFrame" name="frame_93">
                          <property name="frameShape">
-                          <enum>QFrame::StyledPanel</enum>
+                          <enum>QFrame::Shape::StyledPanel</enum>
                          </property>
                          <property name="frameShadow">
-                          <enum>QFrame::Raised</enum>
+                          <enum>QFrame::Shadow::Raised</enum>
                          </property>
                          <layout class="QGridLayout" name="gridLayout_107">
                           <item row="0" column="0">
                            <widget class="QComboBox" name="combox_set_save_hz">
-                            <property name="minimumSize">
-                             <size>
-                              <width>0</width>
-                              <height>50</height>
-                             </size>
-                            </property>
                             <property name="font">
                              <font>
                               <pointsize>20</pointsize>
@@ -6464,7 +5963,7 @@
                    <item>
                     <spacer name="horizontalSpacer_22">
                      <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
+                      <enum>Qt::Orientation::Horizontal</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -6483,20 +5982,14 @@
                      <item>
                       <widget class="QFrame" name="frame_94">
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_108">
                         <item row="0" column="0">
                          <widget class="QLabel" name="label_101">
-                          <property name="minimumSize">
-                           <size>
-                            <width>250</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6513,20 +6006,14 @@
                      <item>
                       <widget class="QFrame" name="frame_95">
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_109">
                         <item row="0" column="0">
                          <widget class="QLabel" name="label_102">
-                          <property name="minimumSize">
-                           <size>
-                            <width>250</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6539,12 +6026,6 @@
                         </item>
                         <item row="0" column="1">
                          <widget class="QLabel" name="label_set_csv_path">
-                          <property name="minimumSize">
-                           <size>
-                            <width>1000</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6557,12 +6038,6 @@
                         </item>
                         <item row="0" column="2">
                          <widget class="QPushButton" name="btn_set_change_csv_path">
-                          <property name="minimumSize">
-                           <size>
-                            <width>200</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6575,12 +6050,6 @@
                         </item>
                         <item row="0" column="3">
                          <widget class="QPushButton" name="btn_set_open_csv_path">
-                          <property name="minimumSize">
-                           <size>
-                            <width>200</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6593,12 +6062,6 @@
                         </item>
                         <item row="1" column="0">
                          <widget class="QLabel" name="label_103">
-                          <property name="minimumSize">
-                           <size>
-                            <width>250</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6611,12 +6074,6 @@
                         </item>
                         <item row="1" column="1">
                          <widget class="QLabel" name="label_set_image_path">
-                          <property name="minimumSize">
-                           <size>
-                            <width>1000</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6629,12 +6086,6 @@
                         </item>
                         <item row="1" column="2">
                          <widget class="QPushButton" name="btn_set_change_image_path">
-                          <property name="minimumSize">
-                           <size>
-                            <width>200</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6647,12 +6098,6 @@
                         </item>
                         <item row="1" column="3">
                          <widget class="QPushButton" name="btn_set_opene_image_path">
-                          <property name="minimumSize">
-                           <size>
-                            <width>200</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6673,20 +6118,14 @@
                      <item>
                       <widget class="QFrame" name="frame_96">
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_110">
                         <item row="0" column="0">
                          <widget class="QLabel" name="label_106">
-                          <property name="minimumSize">
-                           <size>
-                            <width>250</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6703,20 +6142,14 @@
                      <item>
                       <widget class="QFrame" name="frame_97">
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_111">
                         <item row="0" column="0">
                          <widget class="QPushButton" name="btn_set_load_set">
-                          <property name="minimumSize">
-                           <size>
-                            <width>200</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6729,12 +6162,6 @@
                         </item>
                         <item row="0" column="1">
                          <widget class="QPushButton" name="btn_set_save_set">
-                          <property name="minimumSize">
-                           <size>
-                            <width>200</width>
-                            <height>0</height>
-                           </size>
-                          </property>
                           <property name="font">
                            <font>
                             <pointsize>20</pointsize>
@@ -6777,7 +6204,7 @@
                    <item>
                     <spacer name="horizontalSpacer_23">
                      <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
+                      <enum>Qt::Orientation::Horizontal</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -6794,7 +6221,7 @@
                <item>
                 <spacer name="verticalSpacer_6">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -6870,7 +6297,7 @@
                  <item>
                   <spacer name="horizontalSpacer_24">
                    <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
+                    <enum>Qt::Orientation::Horizontal</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -6884,24 +6311,21 @@
                </item>
                <item>
                 <widget class="QTextEdit" name="textEdit">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>1300</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>1300</height>
-                  </size>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
                  <property name="html">
                   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;帮助文档&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+hr { height: 1px; border-width: 0; }
+li.unchecked::marker { content: &quot;\2610&quot;; }
+li.checked::marker { content: &quot;\2612&quot;; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Microsoft YaHei UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'SimSun';&quot;&gt;帮助文档&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                 </widget>
                </item>
@@ -6912,7 +6336,7 @@ p, li { white-space: pre-wrap; }
            <item>
             <spacer name="verticalSpacer_7">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
