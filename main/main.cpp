@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QScreen>
 
+#include "widget.h"
+
 int main(int argc, char *argv[])
 {
 
@@ -26,7 +28,9 @@ int main(int argc, char *argv[])
     qDebug() << "devicePixelRatio:" << screen->devicePixelRatio();
 
 
-    MainWindow mainWindow;
+    Widget mainWindow;
+    mainWindow.setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    mainWindow.resize(1400, 800);
     mainWindow.show();
     return a.exec();
 }

@@ -270,6 +270,9 @@ Widget::Widget(QWidget *parent)
 
 void Widget::configureResponsiveLayout()
 {
+    // Page changes must not raise the top-level window's minimum size.
+    ui->gridLayout_114->setSizeConstraint(QLayout::SetNoConstraint);
+
     const QList<QWidget *> dimensionLockedWidgets = {
         ui->tabWidget,
         ui->system_min,
@@ -328,6 +331,23 @@ void Widget::configureResponsiveLayout()
 
         childWidget->setMinimumSize(0, 0);
         childWidget->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    }
+
+    const QList<QWidget *> testPageWidgets = ui->page_4->findChildren<QWidget *>();
+    for (QWidget *testPageWidget : testPageWidgets)
+    {
+        if (dimensionLockedWidgets.contains(testPageWidget)
+                || testPageWidget->objectName().startsWith(QStringLiteral("qt_")))
+        {
+            continue;
+        }
+
+        QSizePolicy testPageSizePolicy = testPageWidget->sizePolicy();
+        const bool isLayoutContainer = testPageWidget->layout() != nullptr
+                || testPageWidget == ui->tabWidget_2;
+        testPageSizePolicy.setVerticalPolicy(
+                    isLayoutContainer ? QSizePolicy::Expanding : QSizePolicy::Preferred);
+        testPageWidget->setSizePolicy(testPageSizePolicy);
     }
 
     const QList<QStackedWidget *> stackedWidgets = findChildren<QStackedWidget *>();
