@@ -5,43 +5,12 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include "tt_tem.hpp"
+#include "DataAcquisitionService.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QSettings>
 
-
-QString SampleFrame::toCsvLine() const
-{
-    QDateTime dt = QDateTime::fromMSecsSinceEpoch(timeStampMs);
-    QString timeStr = QString("%1.%2.%3.%4")
-            .arg(dt.toString("yyyyMMdd"))
-            .arg(dt.toString("HH"))
-            .arg(dt.toString("mm"))
-            .arg(dt.toString("ss.zzz"));
-    return QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18,%19,%20,%21\n")
-            .arg(timeStr)
-            .arg(pos1)        //位置1
-            .arg(pos2)        //位置2
-            .arg(vel1)        //速度1
-            .arg(vel2)        //速度2
-            .arg(acc1)        //加速度1
-            .arg(acc2)        //加速度2
-            .arg(current1)    //电流1
-            .arg(current2)    //电流2
-            .arg(tem1)        //温度1
-            .arg(tem2)        //温度2
-            .arg(temptc1)     //电阻1
-            .arg(temptc2)     //电阻2
-            .arg(Flowrate1)   //水流量1
-            .arg(Flowrate2)   //水流量2
-            .arg(inwater1)    //进口水压1
-            .arg(inwater2)    //进口水压2
-            .arg(outwater1)   //出口水压1
-            .arg(outwater2)   //出口水压2
-            .arg(qiya)        //气压
-            .arg(qiliu);      //气流
-}
 
 AcquireThread::AcquireThread(QObject *parent)
     : QThread(parent), m_ringBuf(2000)
@@ -72,7 +41,7 @@ RingBuffer<SampleFrame> *AcquireThread::getRingBuf()
 
 bool AcquireThread::acquireOneFrame(SampleFrame &frame)
 {
-    if(m_hComm == ACSC_INVALID || !m_device)
+    if(m_hComm == ACSC_INVALID)
         return false;
 
     frame.timeStampMs = QDateTime::currentDateTime().toMSecsSinceEpoch();
@@ -100,27 +69,30 @@ bool AcquireThread::acquireOneFrame(SampleFrame &frame)
     frame.vol1=getAInvalue(m_hComm,const_cast<char*>("?A\r"));
     frame.vol2=getAInvalue(m_hComm,const_cast<char*>("?A2\r"));
 
-    //NTC
-    frame.ntc1_1=m_device->readNTCRawChannel(0)/100.0;
-    frame.ntc1_2=m_device->readNTCRawChannel(1)/100.0;
-    frame.ntc1_3=m_device->readNTCRawChannel(2)/100.0;
-    frame.ntc1_4=m_device->readNTCRawChannel(3)/100.0;
-    frame.ntc2_1=m_device->readNTCRawChannel(4)/100.0;
-    frame.ntc2_2=m_device->readNTCRawChannel(5)/100.0;
-    frame.ntc2_3=m_device->readNTCRawChannel(6)/100.0;
-    frame.ntc2_4=m_device->readNTCRawChannel(7)/100.0;
+    if (m_device != nullptr) {
+        //NTC
+        frame.ntc1_1=m_device->readNTCRawChannel(0)/100.0;
+        frame.ntc1_2=m_device->readNTCRawChannel(1)/100.0;
+        frame.ntc1_3=m_device->readNTCRawChannel(2)/100.0;
+        frame.ntc1_4=m_device->readNTCRawChannel(3)/100.0;
+        frame.ntc2_1=m_device->readNTCRawChannel(4)/100.0;
+        frame.ntc2_2=m_device->readNTCRawChannel(5)/100.0;
+        frame.ntc2_3=m_device->readNTCRawChannel(6)/100.0;
+        frame.ntc2_4=m_device->readNTCRawChannel(7)/100.0;
 
-    frame.tem1=std::max(std::max(frame.ntc1_1,frame.ntc1_2),std::max(frame.ntc1_3,frame.ntc1_4));
-    frame.tem2=std::max(std::max(frame.ntc2_1,frame.ntc2_2),std::max(frame.ntc2_3,frame.ntc2_4));
+        frame.tem1=std::max(std::max(frame.ntc1_1,frame.ntc1_2),std::max(frame.ntc1_3,frame.ntc1_4));
+        frame.tem2=std::max(std::max(frame.ntc2_1,frame.ntc2_2),std::max(frame.ntc2_3,frame.ntc2_4));
 
-    //PTC
-    frame.ptc1_1=m_device->readPTCRawChannel(0)*3.0518;
-    frame.ptc1_2=m_device->readPTCRawChannel(1)*3.0518;
-    frame.ptc2_1=m_device->readPTCRawChannel(2)*3.0518;
-    frame.ptc2_2=m_device->readPTCRawChannel(3)*3.0518;
+        //PTC
+        frame.ptc1_1=m_device->readPTCRawChannel(0)*3.0518;
+        frame.ptc1_2=m_device->readPTCRawChannel(1)*3.0518;
+        frame.ptc2_1=m_device->readPTCRawChannel(2)*3.0518;
+        frame.ptc2_2=m_device->readPTCRawChannel(3)*3.0518;
 
-    frame.temptc1=std::max(frame.ptc1_1,frame.ptc1_2);
-    frame.temptc2=std::max(frame.ptc2_1,frame.ptc2_2);
+        frame.temptc1=std::max(frame.ptc1_1,frame.ptc1_2);
+        frame.temptc2=std::max(frame.ptc2_1,frame.ptc2_2);
+        frame.temperatureValid = true;
+    }
 
     //流量压力
     //    frame.Flowrate1=getAInvalue(m_hComm,const_cast<char*>("?X1_Flow\r"));
@@ -133,14 +105,14 @@ bool AcquireThread::acquireOneFrame(SampleFrame &frame)
     //    frame.qiliu=getAInvalue(m_hComm,const_cast<char*>("?Main_Flow\r"));
 
 
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.Flowrate1, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.Flowrate2, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.inwater1, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.inwater2, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.outwater1, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.outwater2, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.qiya, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FACC0", 0, 0, 0, 0, &frame.qiliu, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"X1_Flow", 0, 0, 0, 0, &frame.Flowrate1, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"X2_Flow", 0, 0, 0, 0, &frame.Flowrate2, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"X1_Pressure1", 0, 0, 0, 0, &frame.inwater1, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"X2_Pressure1", 0, 0, 0, 0, &frame.inwater2, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"X1_Pressure2", 0, 0, 0, 0, &frame.outwater1, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"X2_Pressure2", 0, 0, 0, 0, &frame.outwater2, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"Main_Pressure", 0, 0, 0, 0, &frame.qiya, nullptr);
+    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"Main_Flow", 0, 0, 0, 0, &frame.qiliu, nullptr);
 
     return true;
 }
@@ -180,46 +152,7 @@ void AcquireThread::run()
     }
 }
 
-bool Widget::openCsvFile(const QString &filePath)
-{
-    closeCsvFile();
-    m_csvFile = new QFile(filePath);
-    if(!m_csvFile->open(QIODevice::ReadWrite | QIODevice::Append | QIODevice::Text))
-    {
-        t_addlog(2,QString("CSV文件打开失败:%1").arg(filePath));
-        delete m_csvFile;
-        m_csvFile=nullptr;
-        return false;
-    }
-    return true;
-}
-
-void Widget::closeCsvFile()
-{
-    if(m_csvFile)
-    {
-        if(m_csvFile->isOpen())
-            m_csvFile->close();
-        delete m_csvFile;
-        m_csvFile=nullptr;
-    }
-}
-
-void Widget::appendBatchSampleToCsv(const QVector<SampleFrame> &frames)
-{
-    if(!m_csvFile || !m_csvFile->isOpen() || !issaveincsv)
-        return;
-    QString buf;
-    buf.reserve(frames.size()*256);
-    for(const auto& f : frames)
-    {
-        buf += f.toCsvLine();
-    }
-    m_csvFile->write(buf.toUtf8());
-    m_csvFile->flush();
-}
-
-static volatile bool flag = true;
+static std::atomic_bool flag{true};
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -246,9 +179,21 @@ Widget::Widget(QWidget *parent)
       mGraph5_5(nullptr),
       mGraph5_6(nullptr),
       mGraph5_7(nullptr),
-      mGraph5_8(nullptr)
+      mGraph5_8(nullptr),
+      acquisitionService_(nullptr),
+      motionStopRequested_(false)
 {
     ui->setupUi(this);
+    const QList<QWidget*> obsoleteStorageWidgets = {
+        ui->frame_86, ui->frame_87,
+        ui->frame_99, ui->frame_98,
+        ui->frame_90, ui->frame_91,
+        ui->frame_92, ui->frame_93,
+        ui->set_save_key
+    };
+    for (QWidget* storageWidget : obsoleteStorageWidgets) {
+        storageWidget->hide();
+    }
     configureResponsiveLayout();
     on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
     log_init();    //日志初始化
@@ -265,6 +210,20 @@ Widget::Widget(QWidget *parent)
     t_addlog(1,"信号槽连接完成");
 
     m_acquireThread = new AcquireThread(this);
+    acquisitionService_ = new DataAcquisitionService(this);
+    connect(acquisitionService_, &DataAcquisitionService::collectionStarted,
+            this, [this]() {
+                t_addlog(1, QStringLiteral("运动数据记录已开始"));
+            });
+    connect(acquisitionService_, &DataAcquisitionService::collectionStopped,
+            this, [this](const QStringList& files) {
+                t_addlog(1, QStringLiteral("运动数据已保存：%1")
+                                .arg(files.join(QStringLiteral("；"))));
+            });
+    connect(acquisitionService_, &DataAcquisitionService::collectionFailed,
+            this, [this](const QString& message) {
+                t_addlog(2, QStringLiteral("运动数据记录失败：%1").arg(message));
+            });
 
 
     connect_ACS(); //连接控制器
@@ -390,8 +349,9 @@ Widget::~Widget()
         m_acquireThread->wait();
         delete m_acquireThread;
     }
-
-    closeCsvFile();
+    if (acquisitionService_) {
+        acquisitionService_->shutdown();
+    }
 
 
     delete ui;
@@ -509,37 +469,18 @@ void Widget::connect_ACS()
         acsc_GetAcceleration( hComm, ACSC_AXIS_0, &Acceleration, NULL);
         ui->line_test_accdec->setText(QString::number(Acceleration));
         t_addlog(1,"控制器连接成功");
-        if(!connect_NtcPtc())//连接ntcptc
-        {
-            t_addlog(1,"温度模块连接失败，请检查通讯");
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("提示");
-            msgBox.setText("控制器连接失败，请检查通讯");
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setStyleSheet(
-                        "QMessageBox {"
-                "   min-width: 1600px;"
-                "   min-height:1300px;"
-                "}"
-                "QMessageBox QLabel {"
-                "   font-size: 25px;"
-                        "}"
-                "QMessageBox QPushButton {"
-                "   font-size: 25px;"
-                        "   min-width: 100px;"
-                        "   min-height: 50px;"
-                        "}"
-            );
-            msgBox.exec();
-            return;
+        const bool temperatureAvailable = connect_NtcPtc();
+        if (!temperatureAvailable) {
+            t_addlog(2, "温度模块连接失败，电机与电流采集继续运行");
         }
 
         m_acquireThread->setHandle(hComm);
-        m_acquireThread->setDevicePtr(device);
-
-
-        QMutexLocker locker(&m_filenameMutex);
-        openCsvFile(filename);
+        m_acquireThread->setDevicePtr(temperatureAvailable ? device : nullptr);
+        AcquisitionConnectionSettings acquisitionConnection;
+        acquisitionConnection.useEthernetTcp = useEthernetTcp;
+        acquisitionConnection.address = address;
+        acquisitionConnection.port = port;
+        acquisitionService_->initialize(acquisitionConnection);
 
         getinfotimer1->start(100); //UI刷新保护判断100ms一次
         m_acquireThread->start();
@@ -982,8 +923,6 @@ void Widget::system_init()
 
     init_protcet_xml();
 
-    filename=createcsv();
-    xunhuanfilename=createxunhuancsv();
     gettestnumber();
 
     QString a6=readTestNum();
@@ -993,7 +932,6 @@ void Widget::system_init()
     oldtime=readTestTime();
     ui->above_time->setText(oldtime);
 
-    csvsize=(ui->line_set_csv_size->text().toInt())*1000;
     logsize=(ui->line_set_log_size->text().toInt())*1000;
 
 
@@ -1004,9 +942,6 @@ void Widget::system_init()
 
     //生成查找字典
     //lookupDict=createLookupDict(R,T,sizeof(R) / sizeof(R[0]));
-
-    issaveincsv=1;
-
 
     if(*loginstate==1)
     {
@@ -1062,7 +997,6 @@ void Widget::widget_init()
     ui->tabWidget_2->setTabText(1, tr("点动设置"));
 
     ui->set_protect_key->click();
-    ui->set_save_key->click();
     ui->comboBox->setCurrentIndex(2);
 
     QString currentDir2 = QCoreApplication::applicationDirPath();
@@ -1279,7 +1213,6 @@ QScrollBar::handle:vertical {
         ui->checkBox_test4_current2->setStyleSheet(checkbox_style);
 
         //开启保存
-        ui->set_save_key->setStyleSheet(checkbox_style);
         //开启保护
         ui->set_protect_key->setStyleSheet(checkbox_style);
 
@@ -1680,16 +1613,10 @@ void Widget::connect_init()
     connect(this->xunhuantimer,SIGNAL(timeout()),this,SLOT(updatexunhuanTime()));
 
 
-    //每秒钟检查一次csv文件大小
-    checkcsv_timer =new QTimer(this);  //最后开始循环检查csv大小
+    //每秒检查一次操作日志大小
+    checkcsv_timer =new QTimer(this);
     connect(checkcsv_timer,&QTimer::timeout,this,&Widget::checkcsv);
     checkcsv_timer->start(1000);
-
-
-
-    connect(ui->set_save_key, &QCheckBox::clicked, this, [this](bool checked) {
-        m_shouldSaveCsv = checked;
-    });
 }
 
 
@@ -1721,10 +1648,26 @@ void Widget::getinfo()
 
     const int BATCH_CONSUME = 50;
     QVector<SampleFrame> batch = m_acquireThread->getRingBuf()->popBatch(BATCH_CONSUME);
-    if(!batch.isEmpty() && issaveincsv && ui->set_save_key->isChecked())
-    {
-        QMutexLocker locker(&m_filenameMutex);
-        appendBatchSampleToCsv(batch);
+    if (!batch.isEmpty() && acquisitionService_->isCollecting()) {
+        QVector<TemperatureSample> temperatureSamples;
+        temperatureSamples.reserve(batch.size());
+        for (const SampleFrame& sampleFrame : batch) {
+            if (!sampleFrame.temperatureValid) {
+                continue;
+            }
+            TemperatureSample sample;
+            sample.timeStampMs = sampleFrame.timeStampMs;
+            sample.motor1Channel1 = sampleFrame.ntc1_1;
+            sample.motor1Channel2 = sampleFrame.ntc1_2;
+            sample.motor1Channel3 = sampleFrame.ntc1_3;
+            sample.motor1Channel4 = sampleFrame.ntc1_4;
+            sample.motor2Channel1 = sampleFrame.ntc2_1;
+            sample.motor2Channel2 = sampleFrame.ntc2_2;
+            sample.motor2Channel3 = sampleFrame.ntc2_3;
+            sample.motor2Channel4 = sampleFrame.ntc2_4;
+            temperatureSamples.append(sample);
+        }
+        acquisitionService_->appendTemperatureSamples(temperatureSamples);
     }
 
     int State  = frame.state0;
@@ -2906,11 +2849,6 @@ void Widget::handleWaveDataUpdate()
         datalist.append(QString::number(max_tem2));
         datalist.append(QString::number(max_current1));
         datalist.append(QString::number(max_current2));
-        if (issaveincsv&&ui->set_save_key->isChecked())
-        {
-            appendRowsToCsv(xunhuanfilename,datalist);
-        }
-
         static double timeCount2 = 0;
         //    const double timeStep = 0.02;
         //    double currentTime = timeCount * timeStep;
@@ -3021,7 +2959,6 @@ void Widget::updatexunhuanTime()
 
 void Widget::checkcsv()
 {
-    QMutexLocker locker(&m_filenameMutex);
     QFileInfo fileInfo2(logname);
 
     if (fileInfo2.exists())
@@ -3034,32 +2971,6 @@ void Widget::checkcsv()
         }
 
     }
-
-    QFileInfo fileInfo(filename);
-
-    if (fileInfo.exists())
-    {
-        qint64 fileSize = fileInfo.size();
-        csvsize=(ui->line_set_csv_size->text().toInt())*1000;
-        if(fileSize>csvsize)
-        {
-            checkcsv_timer->stop();
-            issaveincsv=0;
-            int a=ui->line_set_save_s->text().toDouble();
-            QTimer::singleShot(a*60 * 1000, this, [this]() {
-                filename = createcsv();
-                xunhuanfilename=createxunhuancsv();
-                issaveincsv=1;
-                {
-                    QMutexLocker locker(&m_filenameMutex);
-                    openCsvFile(filename);
-                }
-                checkcsv_timer->start(1000);
-            });
-        }
-
-    }
-
 }
 
 static double getAInvalue(HANDLE hComm, char* str)
@@ -3202,7 +3113,8 @@ void Widget::on_comboBox_currentIndexChanged(int index)
 void Widget::on_start_stop_clicked()
 {
     t_addlog(1,"急停");
-    flag=false;
+    stopMotionRecording();
+    flag.store(false, std::memory_order_release);
     m_recycleMoveNum=0;
     future.cancel();
     acsc_KillAll(hComm, NULL);
@@ -3210,7 +3122,8 @@ void Widget::on_start_stop_clicked()
 
 void Widget::stopstop()
 {
-    flag=false;
+    stopMotionRecording();
+    flag.store(false, std::memory_order_release);
     m_recycleMoveNum=0;
     future.cancel();
     acsc_KillAll(hComm, NULL);
@@ -3326,6 +3239,74 @@ void Widget::on_test_disable_clicked()
     }
 }
 
+bool Widget::startMotionRecording(double velocity,
+                                  double acceleration,
+                                  int waitTimeMilliseconds)
+{
+    AcquisitionConditions conditions;
+    conditions.velocity = velocity;
+    conditions.acceleration = acceleration;
+    conditions.waitTimeMilliseconds = waitTimeMilliseconds;
+    conditions.temperatureSamplePeriodSeconds = 0.001;
+
+    const QString outputDirectory = getTestDataFolderPath();
+    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 请求启动采集：速度=%1，加速度=%2，等待=%3ms，目录=%4")
+                    .arg(velocity)
+                    .arg(acceleration)
+                    .arg(waitTimeMilliseconds)
+                    .arg(outputDirectory));
+    QString errorMessage;
+    if (!acquisitionService_->startCollection(outputDirectory,
+                                              conditions,
+                                              &errorMessage)) {
+        t_addlog(2, QStringLiteral("[ACQ_TRACE][UI] 采集启动失败：%1").arg(errorMessage));
+        t_addlog(2, QStringLiteral("无法开始运动数据记录：%1").arg(errorMessage));
+        QMessageBox::warning(this,
+                             QStringLiteral("采集启动失败"),
+                             errorMessage);
+        return false;
+    }
+    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 采集启动调用完成"));
+    return true;
+}
+
+void Widget::stopMotionRecording()
+{
+    if (acquisitionService_ != nullptr) {
+        acquisitionService_->stopCollection();
+    }
+}
+
+void Widget::stopTestMotion()
+{
+    if (motionStopRequested_) {
+        t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 忽略重复停止请求"));
+        return;
+    }
+    motionStopRequested_ = true;
+    flag.store(false, std::memory_order_release);
+
+    t_addlog(1, "停止运动");
+    ui->test_start_move->setEnabled(true);
+    xunhuantimer->stop();
+    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 准备调用ACS Halt，axis=%1")
+                    .arg(final_axis));
+    int haltResult = 0;
+    if (final_axis == 2) {
+        int axes[] = {ACSC_AXIS_0, ACSC_AXIS_1, -1};
+        haltResult = acsc_HaltM(hComm, axes, nullptr);
+    } else {
+        haltResult = acsc_Halt(hComm, final_axis, nullptr);
+    }
+    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] ACS Halt返回，result=%1")
+                    .arg(haltResult));
+
+    stopMotionRecording();
+    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 已通知采集服务停止并保存"));
+    m_recycleMoveNum = 0;
+    xunhuanpausetime = QTime::currentTime();
+}
+
 
 void Widget::on_test_start_move_clicked()
 {
@@ -3413,11 +3394,14 @@ void Widget::on_test_start_move_clicked()
     double l_oldacc_dec = ui->line_test_accdec->text().toDouble();
     HANDLE localHcomm = hComm;
 
+    if (!startMotionRecording(l_oldspeed, l_oldacc_dec, l_wait)) {
+        return;
+    }
 
     ui->test_start_move->setEnabled(false);
 
     if (future.isRunning()) {
-        flag = false;
+        flag.store(false, std::memory_order_release);
         future.waitForFinished();
         int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1,-1 };
         acsc_HaltM(localHcomm,Axes,nullptr);
@@ -3436,9 +3420,11 @@ void Widget::on_test_start_move_clicked()
         }
         xunhuantimer->start(10);
     }
-    flag=true;
+    motionStopRequested_ = false;
+    flag.store(true, std::memory_order_release);
 
     auto func=[=](){
+        qInfo().noquote() << "[ACQ_TRACE][Motion] 运动线程开始";
         if(l_axis==2){
             acsc_SetVelocity(localHcomm,ACSC_AXIS_0,100 , nullptr );
             acsc_SetVelocity(localHcomm,ACSC_AXIS_1,100 , nullptr );
@@ -3484,7 +3470,8 @@ void Widget::on_test_start_move_clicked()
             acsc_SetDeceleration(localHcomm,l_axis,l_oldacc_dec , nullptr );
         }
 
-        while (flag && m_recycleMoveNum < l_cycle_num)
+        while (flag.load(std::memory_order_acquire)
+               && m_recycleMoveNum.load(std::memory_order_relaxed) < l_cycle_num)
         {
             if(l_axis==2)
             {
@@ -3507,13 +3494,13 @@ void Widget::on_test_start_move_clicked()
 
             int totalMs = l_wait;
             const int chunk = 20;
-            while(totalMs>0 && flag)
+            while(totalMs>0 && flag.load(std::memory_order_acquire))
             {
                 int cur = qMin(chunk,totalMs);
                 QThread::msleep(cur);
                 totalMs -= cur;
             }
-            if(!flag) break;
+            if(!flag.load(std::memory_order_acquire)) break;
 
             if(l_axis==2)
             {
@@ -3535,17 +3522,17 @@ void Widget::on_test_start_move_clicked()
             }
 
             totalMs = l_wait;
-            while(totalMs>0 && flag)
+            while(totalMs>0 && flag.load(std::memory_order_acquire))
             {
                 int cur = qMin(chunk,totalMs);
                 QThread::msleep(cur);
                 totalMs -= cur;
             }
-            if(!flag) break;
+            if(!flag.load(std::memory_order_acquire)) break;
 
             emit updateWaveData();
             m_recycleMoveNum++;
-            lastrecyclenum=m_recycleMoveNum;
+            lastrecyclenum=m_recycleMoveNum.load(std::memory_order_relaxed);
             allrecyclenum++;
 
             QMetaObject::invokeMethod(this,[=](){
@@ -3554,6 +3541,7 @@ void Widget::on_test_start_move_clicked()
         }
 
         //循环结束，切回UI线程执行停止逻辑
+        qInfo().noquote() << "[ACQ_TRACE][Motion] 运动线程结束，投递UI停止回调";
         QMetaObject::invokeMethod(this,[=](){
             xunhuantimer->stop();
             xunhuanpausetime=QTime::currentTime();
@@ -3563,26 +3551,12 @@ void Widget::on_test_start_move_clicked()
     };
 
     future = QtConcurrent::run(func);
+    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 运动线程已启动"));
 }
 //测试界面停止1
 void Widget::on_test_stop2_clicked()
 {
-    t_addlog(1,"停止运动");
-    ui->test_start_move->setEnabled(true);
-    xunhuantimer->stop();
-    if(final_axis==2)
-    {
-        int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1,-1 };
-        acsc_HaltM(hComm,Axes,NULL);
-    }else{
-        acsc_Halt(hComm,final_axis,NULL);
-    }
-
-    flag = false;
-
-    m_recycleMoveNum=0;
-    xunhuanpausetime=QTime::currentTime();
-
+    stopTestMotion();
 }
 
 //测试界面正向Jog
@@ -3742,23 +3716,7 @@ void Widget::on_test_clear_error_clicked()
 //测试界面停止2
 void Widget::on_test_stop_clicked()
 {
-
-    t_addlog(1,"停止运动");
-    ui->test_start_move->setEnabled(true);
-    xunhuantimer->stop();
-    if(final_axis==2)
-    {
-        int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1,-1 };
-        acsc_HaltM(hComm,Axes,NULL); // 立刻急停电机，打断当前运动！
-    }else{
-        acsc_Halt(hComm,final_axis,NULL);
-    }
-
-    flag = false;   //通知循环线程退出
-    // ===== 删除 future.waitForFinished(); 这一行！！不要UI线程阻塞等待！！=====
-
-    m_recycleMoveNum=0;
-    xunhuanpausetime=QTime::currentTime();
+    stopTestMotion();
 }
 
 void Widget::on_btn_set_load_set_clicked()
@@ -3811,11 +3769,7 @@ void Widget::on_btn_set_load_set_clicked()
     ui->line_set_prot_accdec->setText(QString::number(root.firstChildElement("prot_accdec").text().toDouble()));
     ui->line_set_prot_movemax->setText(QString::number(root.firstChildElement("prot_movemax").text().toDouble()));
     ui->line_set_prot_movemin->setText(QString::number(root.firstChildElement("prot_movemin").text().toDouble()));
-    ui->line_set_csv_size->setText(QString::number(root.firstChildElement("csv_size").text().toDouble()));
     ui->line_set_log_size->setText(QString::number(root.firstChildElement("log_size").text().toDouble()));
-    ui->line_set_save_s->setText(QString::number(root.firstChildElement("save_s").text().toDouble()));
-    ui->combox_set_save_hz->setCurrentIndex(root.firstChildElement("save_hz").text().toDouble());
-    ui->line_set_save_time->setText(QString::number(root.firstChildElement("save_time").text().toDouble()));
 }
 
 void Widget::on_btn_set_save_set_clicked()
@@ -3839,12 +3793,7 @@ void Widget::on_btn_set_save_set_clicked()
     double prot_accdec=ui->line_set_prot_accdec->text().toDouble();
     double prot_movemax=ui->line_set_prot_movemax->text().toDouble();
     double prot_movemin=ui->line_set_prot_movemin->text().toDouble();
-    double csv_size=ui->line_set_csv_size->text().toDouble();
     double log_size=ui->line_set_log_size->text().toDouble();
-    double save_s=ui->line_set_save_s->text().toDouble();
-    double save_hz=ui->combox_set_save_hz->currentIndex();
-
-    double save_time=ui->line_set_save_time->text().toDouble();
     qDebug()<<"===================================";
 
 
@@ -3914,21 +3863,9 @@ void Widget::on_btn_set_save_set_clicked()
     QDomElement element16 = doc.createElement("prot_movemin");
     element16.appendChild(doc.createTextNode(QString::number(prot_movemin)));
     root.appendChild(element16);
-    QDomElement element17 = doc.createElement("csv_size");
-    element17.appendChild(doc.createTextNode(QString::number(csv_size)));
-    root.appendChild(element17);
     QDomElement element18 = doc.createElement("log_size");
     element18.appendChild(doc.createTextNode(QString::number(log_size)));
     root.appendChild(element18);
-    QDomElement element19 = doc.createElement("save_s");
-    element19.appendChild(doc.createTextNode(QString::number(save_s)));
-    root.appendChild(element19);
-    QDomElement element20 = doc.createElement("save_hz");
-    element20.appendChild(doc.createTextNode(QString::number(save_hz)));
-    root.appendChild(element20);
-    QDomElement element21 = doc.createElement("save_time");
-    element21.appendChild(doc.createTextNode(QString::number(save_time)));
-    root.appendChild(element21);
 
 
 
@@ -4003,14 +3940,7 @@ void Widget::init_protcet_xml()
     ui->line_set_prot_accdec->setText(QString::number(root.firstChildElement("prot_accdec").text().toDouble()));
     ui->line_set_prot_movemax->setText(QString::number(root.firstChildElement("prot_movemax").text().toDouble()));
     ui->line_set_prot_movemin->setText(QString::number(root.firstChildElement("prot_movemin").text().toDouble()));
-    ui->line_set_csv_size->setText(QString::number(root.firstChildElement("csv_size").text().toDouble()));
     ui->line_set_log_size->setText(QString::number(root.firstChildElement("log_size").text().toDouble()));
-    ui->line_set_save_s->setText(QString::number(root.firstChildElement("save_s").text().toDouble()));
-
-    QTimer::singleShot(1000, this, [=](){
-        ui->combox_set_save_hz->setCurrentIndex(root.firstChildElement("save_hz").text().toDouble());
-    });
-    ui->line_set_save_time->setText(QString::number(root.firstChildElement("save_time").text().toDouble()));
 
 }
 
@@ -4055,9 +3985,6 @@ void Widget::on_btn_set_change_csv_path_clicked()
     out << newContent;
     file.close();
     ui->label_set_csv_path->setText(newPath);
-    QMutexLocker locker(&m_filenameMutex);
-    filename=createcsv();
-    xunhuanfilename=createxunhuancsv();
     logname=createLog();
     //timer_save->start(save_timer);
     SaveLog::Instance()->start(getlogfile());
@@ -4231,15 +4158,11 @@ void Widget::user_enableall()
     ui->line_set_prot_accdec->setEnabled(true);
     ui->line_set_prot_movemax->setEnabled(true);
     ui->line_set_prot_movemin->setEnabled(true);
-    ui->line_set_csv_size->setEnabled(true);
     ui->line_set_log_size->setEnabled(true);
-    ui->line_set_save_s->setEnabled(true);
-    ui->combox_set_save_hz->setEnabled(true);
     ui->btn_set_change_csv_path->setEnabled(true);
     ui->btn_set_change_image_path->setEnabled(true);
     ui->btn_set_load_set->setEnabled(true);
     ui->btn_set_save_set->setEnabled(true);
-    ui->set_save_key->setEnabled(true);
     ui->set_protect_key->setEnabled(true);
     ui->btn_set_change_csv_path->setStyleSheet(
                 "QPushButton {""    background-color: #487eb0;""    color: white;""    border: none;"
@@ -4283,15 +4206,11 @@ void Widget::user_disableall()
     ui->line_set_prot_accdec->setEnabled(false);
     ui->line_set_prot_movemax->setEnabled(false);
     ui->line_set_prot_movemin->setEnabled(false);
-    ui->line_set_csv_size->setEnabled(false);
     ui->line_set_log_size->setEnabled(false);
-    ui->line_set_save_s->setEnabled(false);
-    ui->combox_set_save_hz->setEnabled(false);
     ui->btn_set_change_csv_path->setEnabled(false);
     ui->btn_set_change_image_path->setEnabled(false);
     ui->btn_set_load_set->setEnabled(false);
     ui->btn_set_save_set->setEnabled(false);
-    ui->set_save_key->setEnabled(false);
     ui->set_protect_key->setEnabled(false);
     ui->btn_set_change_csv_path->setStyleSheet(
                 "QPushButton {""    background-color: #487eb0;""    color: white;""    border: none;"
@@ -4429,9 +4348,6 @@ void Widget::on_change_test_num_clicked()
     file.close();
 
     ui->label_19->setText(value);
-    QMutexLocker locker(&m_filenameMutex);
-    filename = createcsv();
-    xunhuanfilename = createxunhuancsv();
     logname = createLog();
 
 
@@ -4865,13 +4781,6 @@ void Widget::on_t_log_clicked()
         logWindow->show();
     }
 
-}
-
-void Widget::on_combox_set_save_hz_currentIndexChanged(int index)
-{
-    qDebug()<<1000/(ui->combox_set_save_hz->currentText().toInt());
-    getinfotimer1->stop();
-    getinfotimer1->start(1000/(ui->combox_set_save_hz->currentText().toInt()));
 }
 
 void Widget::on_set_protect_key_stateChanged(int arg1)

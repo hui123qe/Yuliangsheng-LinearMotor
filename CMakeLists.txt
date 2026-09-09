@@ -34,6 +34,12 @@ find_package(
         Xml
 )
 
+set(QT_VERSION_MAJOR 5)
+add_subdirectory(
+    "${CMAKE_CURRENT_SOURCE_DIR}/third-party/qxlsx/QXlsx"
+    "${CMAKE_CURRENT_BINARY_DIR}/third-party/qxlsx"
+)
+
 set(ACSCL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/ACS/ACSCL_x64.LIB")
 if(NOT EXISTS "${ACSCL_LIBRARY}")
     message(FATAL_ERROR "ACSCL import library not found: ${ACSCL_LIBRARY}")
@@ -57,6 +63,11 @@ add_executable(
     main/datacollectworker.cpp
     main/datacollectworker.h
     main/ACSC.h
+    acquisition/AcquisitionTypes.h
+    acquisition/DataAcquisitionService.cpp
+    acquisition/DataAcquisitionService.h
+    acquisition/ExcelSessionWriter.cpp
+    acquisition/ExcelSessionWriter.h
     login/login.cpp
     login/login.h
     login/login.ui
@@ -117,6 +128,7 @@ target_include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/login"
         "${CMAKE_CURRENT_SOURCE_DIR}/log_system"
         "${CMAKE_CURRENT_SOURCE_DIR}/main"
+        "${CMAKE_CURRENT_SOURCE_DIR}/acquisition"
         "${CMAKE_CURRENT_SOURCE_DIR}/NtcPtc"
         "${CMAKE_CURRENT_SOURCE_DIR}/tem_ModbusTcp"
         "${CMAKE_CURRENT_SOURCE_DIR}/tt_tools"
@@ -127,6 +139,7 @@ target_link_libraries(
     Linear_motor_905
     PRIVATE
         ACS::CL_x64
+        QXlsx::QXlsx
         Qt5::Concurrent
         Qt5::Core
         Qt5::Gui

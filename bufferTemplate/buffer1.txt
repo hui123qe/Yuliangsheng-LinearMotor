@@ -1,0 +1,497 @@
+#2
+!PNAME=Standard Acquisition Service
+!PDESC=Persistent circular block data acquisition service
+
+
+!============================================================
+! Standard Acquisition Service
+!
+! Buffer should be started once and remain alive.
+!
+!
+! Public command:
+!
+!     ACQ_RUN = 1    Start new acquisition session
+!
+!     ACQ_RUN = 0    Stop acquisition
+!
+!
+! Public notification:
+!
+!     ACQ_PUBLISHED_SEQ
+!
+! This buffer only performs data acquisition.
+!============================================================
+
+
+!============================================================
+! Internal acquisition state
+!============================================================
+
+INT ACQ_SESSION_ID = 0
+INT ACQ_CURRENT_BLOCK = 0
+INT ACQ_CURRENT_VALID_COUNT = 0
+INT ACQ_STOP_REQUEST = 0
+INT ACQ_BLOCK_SEQUENCE = 0
+
+
+
+!============================================================
+! Service initialization
+!============================================================
+
+ACQ_RUN = 0
+
+ACQ_STATE = 0
+
+ACQ_CURRENT_BLOCK = 0
+
+ACQ_CURRENT_VALID_COUNT = 0
+
+ACQ_STOP_REQUEST = 0
+
+ACQ_BLOCK_SEQUENCE = 0
+
+
+ACQ_PUBLISHED_SESSION = 0
+ACQ_PUBLISHED_BLOCK = 0
+ACQ_PUBLISHED_COUNT = 0
+ACQ_PUBLISHED_PARTIAL = 0
+ACQ_PUBLISHED_SEQ = 0
+
+
+!------------------------------------------------------------
+! Clear initial block metadata
+!------------------------------------------------------------
+
+ACQ_BLOCK_VALID_COUNT(0) = 0
+ACQ_BLOCK_VALID_COUNT(1) = 0
+ACQ_BLOCK_VALID_COUNT(2) = 0
+ACQ_BLOCK_VALID_COUNT(3) = 0
+ACQ_BLOCK_VALID_COUNT(4) = 0
+
+
+ACQ_BLOCK_PARTIAL(0) = 0
+ACQ_BLOCK_PARTIAL(1) = 0
+ACQ_BLOCK_PARTIAL(2) = 0
+ACQ_BLOCK_PARTIAL(3) = 0
+ACQ_BLOCK_PARTIAL(4) = 0
+
+
+ACQ_BLOCK_SEQ(0) = 0
+ACQ_BLOCK_SEQ(1) = 0
+ACQ_BLOCK_SEQ(2) = 0
+ACQ_BLOCK_SEQ(3) = 0
+ACQ_BLOCK_SEQ(4) = 0
+
+
+ACQ_BLOCK_SESSION(0) = 0
+ACQ_BLOCK_SESSION(1) = 0
+ACQ_BLOCK_SESSION(2) = 0
+ACQ_BLOCK_SESSION(3) = 0
+ACQ_BLOCK_SESSION(4) = 0
+
+
+
+!============================================================
+! Persistent acquisition service
+!============================================================
+
+WHILE 1
+
+
+    TILL ACQ_RUN = 1
+
+    !========================================================
+    ! Start new acquisition session
+    !========================================================
+
+    ACQ_STATE = 1
+
+
+    !--------------------------------------------------------
+    ! Generate new session ID
+    !--------------------------------------------------------
+
+    ACQ_SESSION_ID = ACQ_SESSION_ID + 1
+
+
+    !--------------------------------------------------------
+    ! Reset current session runtime
+    !--------------------------------------------------------
+
+    ACQ_CURRENT_BLOCK = 0
+
+    ACQ_CURRENT_VALID_COUNT = 0
+
+    ACQ_STOP_REQUEST = 0
+
+    ACQ_BLOCK_SEQUENCE = 0
+
+
+    !--------------------------------------------------------
+    ! Reset latest publication
+    !
+    ! Important:
+    !
+    ! ACQ_PUBLISHED_SEQ = 0 means:
+    !
+    !     no block has been published in this session yet.
+    !--------------------------------------------------------
+
+    ACQ_PUBLISHED_SESSION = ACQ_SESSION_ID
+
+    ACQ_PUBLISHED_BLOCK = 0
+
+    ACQ_PUBLISHED_COUNT = 0
+
+    ACQ_PUBLISHED_PARTIAL = 0
+
+    ACQ_PUBLISHED_SEQ = 0
+
+    !--------------------------------------------------------
+    ! Invalidate all circular blocks
+    !--------------------------------------------------------
+
+    ACQ_BLOCK_VALID_COUNT(0) = 0
+    ACQ_BLOCK_VALID_COUNT(1) = 0
+    ACQ_BLOCK_VALID_COUNT(2) = 0
+    ACQ_BLOCK_VALID_COUNT(3) = 0
+    ACQ_BLOCK_VALID_COUNT(4) = 0
+
+
+    ACQ_BLOCK_PARTIAL(0) = 0
+    ACQ_BLOCK_PARTIAL(1) = 0
+    ACQ_BLOCK_PARTIAL(2) = 0
+    ACQ_BLOCK_PARTIAL(3) = 0
+    ACQ_BLOCK_PARTIAL(4) = 0
+
+
+    ACQ_BLOCK_SEQ(0) = 0
+    ACQ_BLOCK_SEQ(1) = 0
+    ACQ_BLOCK_SEQ(2) = 0
+    ACQ_BLOCK_SEQ(3) = 0
+    ACQ_BLOCK_SEQ(4) = 0
+
+
+    ACQ_BLOCK_SESSION(0) = 0
+    ACQ_BLOCK_SESSION(1) = 0
+    ACQ_BLOCK_SESSION(2) = 0
+    ACQ_BLOCK_SESSION(3) = 0
+    ACQ_BLOCK_SESSION(4) = 0
+
+
+    !--------------------------------------------------------
+    ! Acquisition is now running
+    !--------------------------------------------------------
+
+    ACQ_STATE = 2
+
+
+    !========================================================
+    ! Continuous circular acquisition
+    !========================================================
+
+    WHILE ACQ_RUN & ^ACQ_STOP_REQUEST
+
+
+        !====================================================
+        ! Select next physical block
+        !====================================================
+
+        ACQ_CURRENT_BLOCK = ACQ_CURRENT_BLOCK + 1
+
+
+        IF ACQ_CURRENT_BLOCK > ACQ_BLOCK_COUNT
+
+            ACQ_CURRENT_BLOCK = 1
+
+        END
+
+
+
+        !====================================================
+        ! Mark this block as being reused
+        !
+        ! IMPORTANT:
+        !
+        ! Sequence is cleared FIRST.
+        !
+        ! The host must treat:
+        !
+        !     ACQ_BLOCK_SEQ(index) = 0
+        !
+        ! as invalid / being written.
+        !====================================================
+
+        ACQ_BLOCK_SEQ(ACQ_CURRENT_BLOCK - 1) = 0
+
+        ACQ_BLOCK_SESSION(ACQ_CURRENT_BLOCK - 1) = 0
+
+        ACQ_BLOCK_VALID_COUNT(ACQ_CURRENT_BLOCK - 1) = 0
+
+        ACQ_BLOCK_PARTIAL(ACQ_CURRENT_BLOCK - 1) = 0
+
+
+
+        !====================================================
+        ! Start physical DC acquisition
+        !
+        ! Acquisition Profile:        !
+        !
+        !====================================================
+
+        IF ACQ_CURRENT_BLOCK = 1
+
+            DC ACQ_DATA_1, ACQ_BLOCK_SIZE, ACQ_SAMPLE_PERIOD, CurrentX1, CurrentX2
+
+
+        ELSEIF ACQ_CURRENT_BLOCK = 2
+
+            DC ACQ_DATA_2, ACQ_BLOCK_SIZE, ACQ_SAMPLE_PERIOD, CurrentX1, CurrentX2
+
+
+        ELSEIF ACQ_CURRENT_BLOCK = 3
+
+            DC ACQ_DATA_3, ACQ_BLOCK_SIZE, ACQ_SAMPLE_PERIOD, CurrentX1, CurrentX2
+
+
+        ELSEIF ACQ_CURRENT_BLOCK = 4
+
+            DC ACQ_DATA_4, ACQ_BLOCK_SIZE, ACQ_SAMPLE_PERIOD, CurrentX1, CurrentX2
+
+
+        ELSEIF ACQ_CURRENT_BLOCK = 5
+
+            DC ACQ_DATA_5, ACQ_BLOCK_SIZE, ACQ_SAMPLE_PERIOD, CurrentX1, CurrentX2
+
+
+        END
+
+
+
+        !====================================================
+        ! Wait for:
+        !
+        ! A. normal DC completion
+        !
+        ! OR
+        !
+        ! B. STOPDC caused by ACQ_RUN = 0
+        !====================================================
+
+        TILL ^S_ST.#DC
+
+
+        !====================================================
+        ! Capture S_DCN immediately
+        !
+        ! Normal block:
+        !
+        !     S_DCN = ACQ_BLOCK_SIZE
+        !
+        ! STOPDC:
+        !
+        !     0 <= S_DCN < ACQ_BLOCK_SIZE
+        !====================================================
+
+        ACQ_CURRENT_VALID_COUNT = S_DCN
+
+        !----------------------------------------------------
+        ! Defensive range check
+        !----------------------------------------------------
+
+        IF ACQ_CURRENT_VALID_COUNT < 0
+
+            ACQ_CURRENT_VALID_COUNT = 0
+
+        END
+
+
+        IF ACQ_CURRENT_VALID_COUNT > ACQ_BLOCK_SIZE
+
+            ACQ_CURRENT_VALID_COUNT = ACQ_BLOCK_SIZE
+
+        END
+
+
+
+        !====================================================
+        ! Publish block only if it contains data
+        !====================================================
+
+        IF ACQ_CURRENT_VALID_COUNT > 0
+
+
+            !================================================
+            ! Step 1
+            !
+            ! Write block metadata except sequence.
+            !================================================
+
+            ACQ_BLOCK_VALID_COUNT(ACQ_CURRENT_BLOCK - 1) = ACQ_CURRENT_VALID_COUNT
+
+
+            !================================================
+            ! Step 2
+            !
+            ! Determine whether this is a partial block.
+            !================================================
+
+            IF ACQ_CURRENT_VALID_COUNT < ACQ_BLOCK_SIZE
+
+                ACQ_BLOCK_PARTIAL(ACQ_CURRENT_BLOCK - 1) = 1
+
+            ELSE
+
+                ACQ_BLOCK_PARTIAL(ACQ_CURRENT_BLOCK - 1) = 0
+
+            END
+
+
+
+            !================================================
+            ! Step 3
+            !
+            ! Assign session.
+            !================================================
+
+            ACQ_BLOCK_SESSION(ACQ_CURRENT_BLOCK - 1) = ACQ_SESSION_ID
+
+
+
+            !================================================
+            ! Step 4
+            !
+            ! Generate new sequence number.
+            !================================================
+
+            ACQ_BLOCK_SEQUENCE = ACQ_BLOCK_SEQUENCE + 1
+
+
+
+            !================================================
+            ! Step 5
+            !
+            ! BLOCK COMMIT
+            !
+            ! Sequence is written LAST into per-block metadata.
+            !
+            ! Once ACQ_BLOCK_SEQ != 0,
+            ! the block is considered valid.
+            !================================================
+
+            ACQ_BLOCK_SEQ(ACQ_CURRENT_BLOCK - 1) = ACQ_BLOCK_SEQUENCE
+
+
+
+            !================================================
+            ! Step 6
+            !
+            ! Update latest publication information.
+            !
+            ! ACQ_PUBLISHED_SEQ must be written LAST.
+            !================================================
+
+            ACQ_PUBLISHED_SESSION = ACQ_SESSION_ID
+
+            ACQ_PUBLISHED_BLOCK = ACQ_CURRENT_BLOCK
+
+            ACQ_PUBLISHED_COUNT = ACQ_CURRENT_VALID_COUNT
+
+            ACQ_PUBLISHED_PARTIAL = ACQ_BLOCK_PARTIAL(ACQ_CURRENT_BLOCK - 1)
+
+
+
+            !================================================
+            ! GLOBAL PUBLICATION COMMIT
+            !================================================
+
+            ACQ_PUBLISHED_SEQ = ACQ_BLOCK_SEQUENCE
+
+
+        END
+
+
+
+    END
+
+
+
+    !========================================================
+    ! Stop current acquisition session
+    !========================================================
+
+    ACQ_STATE = 3
+
+    !--------------------------------------------------------
+    ! Return to idle
+    !--------------------------------------------------------
+
+    ACQ_STATE = 0
+
+
+
+END
+
+
+
+STOP
+
+
+
+!============================================================
+! ACQ_RUN change handler
+!
+! Falling edge:
+!
+!     ACQ_RUN:
+!
+!         1 -> 0
+!
+! immediately terminates an active DC collection.
+!
+! Main service will then:
+!
+!     TILL ^S_ST.#DC
+!             ↓
+!          S_DCN
+!             ↓
+!       publish partial block
+!
+!============================================================
+
+ON ^ACQ_RUN
+
+BLOCK
+
+
+    IF ACQ_RUN = 0
+
+
+        !----------------------------------------------------
+        ! Latch stop.
+        !
+        ! Even if the host changes ACQ_RUN back to 1 very
+        ! quickly, current session must terminate first.
+        !----------------------------------------------------
+
+        ACQ_STOP_REQUEST = 1
+
+
+
+        !----------------------------------------------------
+        ! Stop active system DC immediately.
+        !----------------------------------------------------
+
+        IF S_ST.#DC
+
+            STOPDC
+
+        END
+
+
+    END
+
+
+END

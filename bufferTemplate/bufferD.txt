@@ -1,0 +1,109 @@
+!============================================================
+! Standard Acquisition Service
+! Global Definitions
+!
+!
+!============================================================
+
+!============================================================
+! Acquisition command
+!
+! ACQ_RUN:
+!
+! 0 = Stop
+! 1 = Run
+!
+! This is a command, NOT actual running state.
+!============================================================
+
+GLOBAL INT ACQ_RUN = 0
+
+
+!============================================================
+! Acquisition state
+!
+! 0 = IDLE
+! 1 = STARTING
+! 2 = RUNNING
+! 3 = STOPPING
+! 4 = ERROR
+!============================================================
+
+GLOBAL INT ACQ_STATE = 0
+
+
+!============================================================
+! Latest published block
+!
+! ACQ_PUBLISHED_SEQ is the final COMMIT marker.
+! Host should watch this variable.
+!============================================================
+
+GLOBAL INT ACQ_PUBLISHED_SESSION = 0
+GLOBAL INT ACQ_PUBLISHED_BLOCK = 0
+GLOBAL INT ACQ_PUBLISHED_COUNT = 0
+GLOBAL INT ACQ_PUBLISHED_PARTIAL = 0
+GLOBAL INT ACQ_PUBLISHED_SEQ = 0
+
+
+!============================================================
+! Per-block metadata
+!
+! Index:
+!
+!     0 = ACQ_DATA_1
+!     1 = ACQ_DATA_2
+!     ...
+!     4 = ACQ_DATA_5
+!
+! VALID_COUNT:
+!     Number of valid samples PER CHANNEL.
+!
+! PARTIAL:
+!     0 = full block
+!     1 = partial block
+!
+! SEQ:
+!     Block publication sequence.
+!     0 = block currently invalid / not published
+!
+! SESSION:
+!     Session that owns this block.
+!============================================================
+
+GLOBAL INT ACQ_BLOCK_VALID_COUNT(5)
+
+GLOBAL INT ACQ_BLOCK_PARTIAL(5)
+
+GLOBAL INT ACQ_BLOCK_SEQ(5)
+
+GLOBAL INT ACQ_BLOCK_SESSION(5)
+
+
+!============================================================
+! Physical acquisition buffers
+!
+! Current profile:
+!
+! Channel 0 = CurrentX1
+! Channel 1 = CurrentX2
+! IMPORTANT:
+!
+! Keep literal dimensions here.
+!
+! If ACQ_CHANNEL_COUNT changes, these declarations and the
+! DC channel list below must be changed together.
+!
+! ACQ_BLOCK_SIZE must not exceed 16666 samples per channel.
+!
+!============================================================
+
+GLOBAL REAL ACQ_DATA_1(2)(16666)
+
+GLOBAL REAL ACQ_DATA_2(2)(16666)
+
+GLOBAL REAL ACQ_DATA_3(2)(16666)
+
+GLOBAL REAL ACQ_DATA_4(2)(16666)
+
+GLOBAL REAL ACQ_DATA_5(2)(16666)

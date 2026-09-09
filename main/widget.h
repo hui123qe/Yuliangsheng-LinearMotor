@@ -24,17 +24,20 @@
 #include "ITCPDevice.h"
 #include "ModbusTemperatureServer.h"
 #include <algorithm>
+#include <atomic>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
 
+class DataAcquisitionService;
 
 static double getAInvalue(HANDLE hComm, char* str);
 
 struct SampleFrame
 {
     qint64 timeStampMs{0};
+    bool temperatureValid{false};
     int state0{0};
     int state1{0};
     int movestate0{0};
@@ -70,7 +73,6 @@ struct SampleFrame
     double qiya{0};
     double qiliu{0};
 
-    QString toCsvLine() const;
 };
 
 template<typename T>
@@ -318,8 +320,6 @@ private slots:
 
     void on_t_log_clicked();
 
-    void on_combox_set_save_hz_currentIndexChanged(int index);
-
     void on_set_protect_key_stateChanged(int arg1);
 
 signals:
@@ -404,7 +404,7 @@ private:
     //循环运动参数
     int cycle_num,cycle_pointA,cycle_pointB,cycle_waittime;
     QFuture<void>future;
-    int m_recycleMoveNum; //往复运动次数
+    std::atomic<int> m_recycleMoveNum{0}; //往复运动次数
     QTimer *xunhuantimer;
     QTime xunhuanstarttime,xunhuanpausetime;
     int lastrecyclenum,allrecyclenum;//最后一次循环运动次数，累积总循环次数
@@ -426,9 +426,8 @@ private:
 
     //数据日志保存
     QTimer *checkcsv_timer;
-    QString filename,logname,xunhuanfilename;
-    QMutex m_filenameMutex;
-    int csvsize,logsize;
+    QString logname;
+    int logsize;
 
 
     //记录程序启动时间
@@ -443,8 +442,6 @@ private:
     std::map<double,double> lookupDict;
 
 
-    std::atomic<bool> m_shouldSaveCsv{true};
-    std::atomic<int> issaveincsv;
     std::atomic<int> issavelog;
 
     //电流温度最大值最小值
@@ -482,10 +479,13 @@ private:
 
 
     ITCPDevice* device;
-    QFile* m_csvFile{nullptr};
-    bool openCsvFile(const QString& filePath);
-    void closeCsvFile();
-    void appendBatchSampleToCsv(const QVector<SampleFrame>& frames);
+    DataAcquisitionService* acquisitionService_;
+    bool startMotionRecording(double velocity,
+                              double acceleration,
+                              int waitTimeMilliseconds);
+    void stopMotionRecording();
+    void stopTestMotion();
+    bool motionStopRequested_;
 };
 
 
