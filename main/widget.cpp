@@ -70,28 +70,45 @@ bool AcquireThread::acquireOneFrame(SampleFrame &frame)
     frame.vol2=getAInvalue(m_hComm,const_cast<char*>("?A2\r"));
 
     if (m_device != nullptr) {
-        //NTC
-        frame.ntc1_1=m_device->readNTCRawChannel(0)/100.0;
-        frame.ntc1_2=m_device->readNTCRawChannel(1)/100.0;
-        frame.ntc1_3=m_device->readNTCRawChannel(2)/100.0;
-        frame.ntc1_4=m_device->readNTCRawChannel(3)/100.0;
-        frame.ntc2_1=m_device->readNTCRawChannel(4)/100.0;
-        frame.ntc2_2=m_device->readNTCRawChannel(5)/100.0;
-        frame.ntc2_3=m_device->readNTCRawChannel(6)/100.0;
-        frame.ntc2_4=m_device->readNTCRawChannel(7)/100.0;
+        uint16_t ntcRawValues[8];
+        uint16_t ptcRawValues[4];
+        bool containsInvalidTemperature = false;
 
-        frame.tem1=std::max(std::max(frame.ntc1_1,frame.ntc1_2),std::max(frame.ntc1_3,frame.ntc1_4));
-        frame.tem2=std::max(std::max(frame.ntc2_1,frame.ntc2_2),std::max(frame.ntc2_3,frame.ntc2_4));
+        for (int channel = 0; channel < 8; ++channel) {
+            ntcRawValues[channel] = m_device->readNTCRawChannel(channel);
+            containsInvalidTemperature = containsInvalidTemperature
+                    || ntcRawValues[channel] == 0xFFFF;
+        }
+        for (int channel = 0; channel < 4; ++channel) {
+            ptcRawValues[channel] = m_device->readPTCRawChannel(channel);
+            containsInvalidTemperature = containsInvalidTemperature
+                    || ptcRawValues[channel] == 0xFFFF;
+        }
 
-        //PTC
-        frame.ptc1_1=m_device->readPTCRawChannel(0)*3.0518;
-        frame.ptc1_2=m_device->readPTCRawChannel(1)*3.0518;
-        frame.ptc2_1=m_device->readPTCRawChannel(2)*3.0518;
-        frame.ptc2_2=m_device->readPTCRawChannel(3)*3.0518;
+        if (!containsInvalidTemperature) {
+            //NTC
+            frame.ntc1_1=ntcRawValues[0]/100.0;
+            frame.ntc1_2=ntcRawValues[1]/100.0;
+            frame.ntc1_3=ntcRawValues[2]/100.0;
+            frame.ntc1_4=ntcRawValues[3]/100.0;
+            frame.ntc2_1=ntcRawValues[4]/100.0;
+            frame.ntc2_2=ntcRawValues[5]/100.0;
+            frame.ntc2_3=ntcRawValues[6]/100.0;
+            frame.ntc2_4=ntcRawValues[7]/100.0;
 
-        frame.temptc1=std::max(frame.ptc1_1,frame.ptc1_2);
-        frame.temptc2=std::max(frame.ptc2_1,frame.ptc2_2);
-        frame.temperatureValid = true;
+            frame.tem1=std::max(std::max(frame.ntc1_1,frame.ntc1_2),std::max(frame.ntc1_3,frame.ntc1_4));
+            frame.tem2=std::max(std::max(frame.ntc2_1,frame.ntc2_2),std::max(frame.ntc2_3,frame.ntc2_4));
+
+            //PTC
+            frame.ptc1_1=ptcRawValues[0]*3.0518;
+            frame.ptc1_2=ptcRawValues[1]*3.0518;
+            frame.ptc2_1=ptcRawValues[2]*3.0518;
+            frame.ptc2_2=ptcRawValues[3]*3.0518;
+
+            frame.temptc1=std::max(frame.ptc1_1,frame.ptc1_2);
+            frame.temptc2=std::max(frame.ptc2_1,frame.ptc2_2);
+            frame.temperatureValid = true;
+        }
     }
 
     //流量压力
@@ -1716,17 +1733,19 @@ void Widget::getinfo()
 
 
 
-    QString line = QString::asprintf(
-                "【NTC1】%.1f  %.1f  %.1f  %.1f | "
-                "【NTC2】%.1f  %.1f  %.1f  %.1f\n"
-                "【PTC1】%.1f  %.1f | 【PTC2】%.1f  %.1f\n"
-                "T_tem1:%.1f  T_tem2:%.1f | T_ptc1:%.1f  T_ptc2:%.1f\n",
-                frame.ntc1_1,frame.ntc1_2,frame.ntc1_3,frame.ntc1_4,
-                frame.ntc2_1,frame.ntc2_2,frame.ntc2_3,frame.ntc2_4,
-                frame.ptc1_1,frame.ptc1_2,frame.ptc2_1,frame.ptc2_2,
-                tem1,tem2,temptc1,temptc2
-                );
-    ui->textEdit->setText(line);
+    if (frame.temperatureValid) {
+        QString line = QString::asprintf(
+                    "【NTC1】%.1f  %.1f  %.1f  %.1f | "
+                    "【NTC2】%.1f  %.1f  %.1f  %.1f\n"
+                    "【PTC1】%.1f  %.1f | 【PTC2】%.1f  %.1f\n"
+                    "T_tem1:%.1f  T_tem2:%.1f | T_ptc1:%.1f  T_ptc2:%.1f\n",
+                    frame.ntc1_1,frame.ntc1_2,frame.ntc1_3,frame.ntc1_4,
+                    frame.ntc2_1,frame.ntc2_2,frame.ntc2_3,frame.ntc2_4,
+                    frame.ptc1_1,frame.ptc1_2,frame.ptc2_1,frame.ptc2_2,
+                    tem1,tem2,temptc1,temptc2
+                    );
+        ui->textEdit->setText(line);
+    }
 
 
     //判断各种状态
@@ -1897,18 +1916,20 @@ void Widget::getinfo()
 
     if(max_current1 ==-0.111){max_current1=current1;}if(max_current1<current1){max_current1=current1;}
     if(max_current2 ==-0.111){max_current2=current2;}if(max_current2<current2){max_current2=current2;}
-    if(max_tem1 ==-0.111){max_tem1=tem1;}if(max_tem1<tem1){max_tem1=tem1;}
-    if(max_tem2 ==-0.111){max_tem2=tem2;}if(max_tem2<tem2){max_tem2=tem2;}
+    if(frame.temperatureValid) {
+        if(max_tem1 ==-0.111){max_tem1=tem1;}if(max_tem1<tem1){max_tem1=tem1;}
+        if(max_tem2 ==-0.111){max_tem2=tem2;}if(max_tem2<tem2){max_tem2=tem2;}
+    }
     if(final_max_current1 ==-0.111){final_max_current1=current1;}if(final_max_current1<current1){final_max_current1=current1;}
     if(final_max_current2 ==-0.111){final_max_current2=current2;}if(final_max_current2<current2){final_max_current2=current2;}
-    if(final_max_tem1 ==-0.111){final_max_tem1=tem1;}if(final_max_tem1<tem1){final_max_tem1=tem1;}
-    if(final_max_tem2 ==-0.111){final_max_tem2=tem2;}if(final_max_tem2<tem2){final_max_tem2=tem2;}
 
 
     ui->above_current1->setText(QString::number(final_max_current1,'f',4));
     ui->above_current2->setText(QString::number(final_max_current2,'f',4));
-    ui->above_tem1->setText(QString::number(final_max_tem1,'f',4));
-    ui->above_tem2->setText(QString::number(final_max_tem2,'f',4));
+    if (frame.temperatureValid) {
+        ui->above_tem1->setText(QString::number(tem1,'f',4));
+        ui->above_tem2->setText(QString::number(tem2,'f',4));
+    }
     ui->above_pos1->setText(QString::number(pos1, 'f', 3));
     ui->above_pos2->setText(QString::number(pos2, 'f', 3));
 
@@ -2008,6 +2029,7 @@ void Widget::getinfo()
         }
 
         //这里判断温度
+        if(frame.temperatureValid) {
         if((m_warnTemperature<tem1)||(m_warnTemperature2<tem2)||(temptc1>3420)||(temptc2>3420)){
             bool isCritical = false;  // 标记是否触发断电
 
@@ -2079,6 +2101,7 @@ void Widget::getinfo()
                 temlogsign2=true;
                 temlogsign3=true;
             }
+        }
         }
 
         //这里判断水流量

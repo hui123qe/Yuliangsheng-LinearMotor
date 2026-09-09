@@ -611,7 +611,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>温度最高值(℃)</string>
+                   <string>当前温度(℃)</string>
                   </property>
                  </widget>
                 </item>
