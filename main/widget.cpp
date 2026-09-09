@@ -405,6 +405,7 @@ void Widget::connect_ACS()
 
     if (hComm == ACSC_INVALID)
     {
+        ui->label_waterCoolingStatus->setText(QStringLiteral("水冷状态：读取失败"));
         ui->zsd_enable1->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->zsd_enable2->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->test_enable_label_0->setStyleSheet("background-color: black;");
@@ -469,6 +470,7 @@ void Widget::connect_ACS()
         acsc_GetAcceleration( hComm, ACSC_AXIS_0, &Acceleration, NULL);
         ui->line_test_accdec->setText(QString::number(Acceleration));
         t_addlog(1,"控制器连接成功");
+        refreshWaterCoolingStatus();
         const bool temperatureAvailable = connect_NtcPtc();
         if (!temperatureAvailable) {
             t_addlog(2, "温度模块连接失败，电机与电流采集继续运行");
@@ -1079,6 +1081,22 @@ QPushButton:hover {
 
 QPushButton:pressed {
     background-color: #2c3e50;
+}
+
+QPushButton#waterCoolingOnButton {
+    background-color: #27ae60;
+}
+
+QPushButton#waterCoolingOnButton:hover {
+    background-color: #229954;
+}
+
+QPushButton#waterCoolingOffButton {
+    background-color: #c0392b;
+}
+
+QPushButton#waterCoolingOffButton:hover {
+    background-color: #a93226;
 }
 
 /* 特殊按钮样式 */
@@ -3093,6 +3111,63 @@ void Widget::on_system_exit_clicked()
         logWindow->close();
     }
     window()->close();
+}
+
+void Widget::on_waterCoolingOnButton_clicked()
+{
+    setWaterCoolingEnabled(true);
+}
+
+void Widget::on_waterCoolingOffButton_clicked()
+{
+    setWaterCoolingEnabled(false);
+}
+
+void Widget::setWaterCoolingEnabled(bool enabled)
+{
+    int outputValue = enabled ? 1 : 0;
+    char valueOut1[] = "Value_OUT1";
+    char valueOut2[] = "Value_OUT2";
+
+    t_addlog(1, enabled ? QStringLiteral("水冷开关：开启")
+                        : QStringLiteral("水冷开关：关闭"));
+    acsc_WriteInteger(hComm, ACSC_NONE, valueOut1,
+                      0, 0, 0, 0, &outputValue, nullptr);
+    acsc_WriteInteger(hComm, ACSC_NONE, valueOut2,
+                      0, 0, 0, 0, &outputValue, nullptr);
+
+    refreshWaterCoolingStatus();
+}
+
+void Widget::refreshWaterCoolingStatus()
+{
+    int valueOut1 = 0;
+    int valueOut2 = 0;
+    char valueOut1Name[] = "Value_OUT1";
+    char valueOut2Name[] = "Value_OUT2";
+
+    const bool valueOut1Read = acsc_ReadInteger(
+                hComm, ACSC_NONE, valueOut1Name,
+                0, 0, 0, 0, &valueOut1, nullptr) != 0;
+    const bool valueOut2Read = acsc_ReadInteger(
+                hComm, ACSC_NONE, valueOut2Name,
+                0, 0, 0, 0, &valueOut2, nullptr) != 0;
+
+    if (!valueOut1Read || !valueOut2Read) {
+        ui->label_waterCoolingStatus->setText(QStringLiteral("水冷状态：读取失败"));
+        return;
+    }
+
+    const bool valueOut1Enabled = valueOut1 != 0;
+    const bool valueOut2Enabled = valueOut2 != 0;
+
+    if (valueOut1Enabled && valueOut2Enabled) {
+        ui->label_waterCoolingStatus->setText(QStringLiteral("水冷状态：开启"));
+    } else if (!valueOut1Enabled && !valueOut2Enabled) {
+        ui->label_waterCoolingStatus->setText(QStringLiteral("水冷状态：关闭"));
+    } else {
+        ui->label_waterCoolingStatus->setText(QStringLiteral("水冷状态：部分开启"));
+    }
 }
 
 void Widget::on_comboBox_currentIndexChanged(int index)

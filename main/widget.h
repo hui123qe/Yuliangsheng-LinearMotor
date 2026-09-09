@@ -202,6 +202,10 @@ private slots:
 
     void on_system_exit_clicked();
 
+    void on_waterCoolingOnButton_clicked();
+
+    void on_waterCoolingOffButton_clicked();
+
 
 
 
@@ -350,6 +354,8 @@ private:
     void chart_init();  //图表初始化
     void connect_init();//信号槽
     void connect_ACS();
+    void setWaterCoolingEnabled(bool enabled);
+    void refreshWaterCoolingStatus();
     bool connect_NtcPtc();
 
     //鼠标事件相关参数
