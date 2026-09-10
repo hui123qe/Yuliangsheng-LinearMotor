@@ -9,6 +9,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QSaveFile>
 #include <QSettings>
 
 
@@ -193,10 +194,6 @@ Widget::Widget(QWidget *parent)
       mGraph5_2(nullptr),
       mGraph5_3(nullptr),
       mGraph5_4(nullptr),
-      mGraph5_5(nullptr),
-      mGraph5_6(nullptr),
-      mGraph5_7(nullptr),
-      mGraph5_8(nullptr),
       acquisitionService_(nullptr),
       motionStopRequested_(false)
 {
@@ -280,10 +277,6 @@ void Widget::configureResponsiveLayout()
         ui->label_5_2,
         ui->label_5_3,
         ui->label_5_4,
-        ui->label_5_5,
-        ui->label_5_6,
-        ui->label_5_7,
-        ui->label_5_8,
         ui->label_1_1,
         ui->label_1_2,
         ui->label_2_1,
@@ -594,14 +587,6 @@ void Widget::chart_init()
     mGraph5_4 = mPlot5->addGraph();
     mGraph5_3->setPen(QPen(QColor(255, 165, 0), 2));
     mGraph5_4->setPen(QPen(Qt::darkGreen, 2));
-    mGraph5_5 = mPlot5->addGraph();
-    mGraph5_6 = mPlot5->addGraph();
-    mGraph5_5->setPen(QPen(Qt::red, 2));
-    mGraph5_6->setPen(QPen(Qt::blue, 2));
-    mGraph5_7 = mPlot5->addGraph();
-    mGraph5_8 = mPlot5->addGraph();
-    mGraph5_7->setPen(QPen(QColor(255, 165, 0), 2));
-    mGraph5_8->setPen(QPen(Qt::darkGreen, 2));
 
     // 坐标轴设置
     mPlot5->xAxis->setLabel("次数");
@@ -751,10 +736,6 @@ void Widget::chart_init()
     mData5_2.reserve(3000);
     mData5_3.reserve(3000);
     mData5_4.reserve(3000);
-    mData5_5.reserve(3000);
-    mData5_6.reserve(3000);
-    mData5_7.reserve(3000);
-    mData5_8.reserve(3000);
 
 
 }
@@ -1232,10 +1213,6 @@ QScrollBar::handle:vertical {
         ui->checkBox_start_current2->setStyleSheet(checkbox_style);
         ui->checkBox_start_tem1->setStyleSheet(checkbox_style);
         ui->checkBox_start_tem2->setStyleSheet(checkbox_style);
-        ui->checkBox_start_current_old1->setStyleSheet(checkbox_style);
-        ui->checkBox_start_current_old2->setStyleSheet(checkbox_style);
-        ui->checkBox_start_tem_old1->setStyleSheet(checkbox_style);
-        ui->checkBox_start_tem_old2->setStyleSheet(checkbox_style);
         ui->checkBox_test1_pos1->setStyleSheet(checkbox_style);
         ui->checkBox_test1_pos2->setStyleSheet(checkbox_style);
         ui->checkBox_test2_acc1->setStyleSheet(checkbox_style);
@@ -1591,18 +1568,6 @@ QScrollBar::handle:vertical {
     ui->label_5_4->setFixedSize(20, 20);
     ui->label_5_4->setText(" ");
     ui->label_5_4->setStyleSheet("QLabel {"" background-color: darkGreen;""}");
-    ui->label_5_5->setFixedSize(20, 20);
-    ui->label_5_5->setText(" ");
-    ui->label_5_5->setStyleSheet("QLabel {"" background-color: red;""}");
-    ui->label_5_6->setFixedSize(20, 20);
-    ui->label_5_6->setText(" ");
-    ui->label_5_6->setStyleSheet("QLabel {"" background-color: blue;""}");
-    ui->label_5_7->setFixedSize(20, 20);
-    ui->label_5_7->setText(" ");
-    ui->label_5_7->setStyleSheet("QLabel { background-color: #FFA500; }");
-    ui->label_5_8->setFixedSize(20, 20);
-    ui->label_5_8->setText(" ");
-    ui->label_5_8->setStyleSheet("QLabel {"" background-color: darkGreen;""}");
     ui->label_1_1->setFixedSize(20, 20);
     ui->label_1_1->setText(" ");
     ui->label_1_1->setStyleSheet("QLabel {"" background-color: red;""}");
@@ -1964,8 +1929,8 @@ void Widget::getinfo()
                 ui->zsd_current1->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(currentlogsign1)
                 {
-                    qWarning()<<"电机1当前电流为"+QString::number(current1)+",设备停机下使能";
-                    logWindow->addLog("Warning","电机1当前电流为"+QString::number(current1)+",设备停机下使能");
+                    qWarning()<<"电机1当前电流为"+QString::number(current1)+",设备停机";
+                    logWindow->addLog("Warning","电机1当前电流为"+QString::number(current1)+",设备停机");
                     currentlogsign1=false;
                 }
             }
@@ -1977,8 +1942,8 @@ void Widget::getinfo()
                 ui->zsd_current2->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(currentlogsign2)
                 {
-                    qWarning()<<"电机2当前电流为"+QString::number(current2)+",设备停机下使能";
-                    logWindow->addLog("Warning","电机2当前电流为"+QString::number(current2)+",设备停机下使能");
+                    qWarning()<<"电机2当前电流为"+QString::number(current2)+",设备停机";
+                    logWindow->addLog("Warning","电机2当前电流为"+QString::number(current2)+",设备停机");
                     currentlogsign2=false;
                 }
             }
@@ -1988,7 +1953,6 @@ void Widget::getinfo()
                 ui->test_status4->setStyleSheet("color: red;");
                 ui->test_status4->setText("停机");
                 stopstop();
-                acsc_DisableAll(hComm, nullptr);
                 acsc_KillAll(hComm, nullptr);
                 return;  // 直接返回避免后续状态覆盖
             }
@@ -2040,8 +2004,8 @@ void Widget::getinfo()
                 ui->zsd_tem1->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(temlogsign1)
                 {
-                    qWarning()<<"电机1当前温度为"+QString::number(tem1)+",设备停机下使能";
-                    logWindow->addLog("Warning","电机1当前温度为"+QString::number(tem1)+",设备停机下使能");
+                    qWarning()<<"电机1当前温度为"+QString::number(tem1)+",设备停机";
+                    logWindow->addLog("Warning","电机1当前温度为"+QString::number(tem1)+",设备停机");
                     temlogsign1=false;
                 }
 
@@ -2052,8 +2016,8 @@ void Widget::getinfo()
                 ui->zsd_tem2->setStyleSheet("QLabel { background-color: red; border-radius: 15px; border: 2px solid black; }");
                 if(temlogsign2)
                 {
-                    qWarning()<<"电机2当前温度为"+QString::number(tem2)+",设备停机下使能";
-                    logWindow->addLog("Warning","电机2当前温度为"+QString::number(tem2)+",设备停机下使能");
+                    qWarning()<<"电机2当前温度为"+QString::number(tem2)+",设备停机";
+                    logWindow->addLog("Warning","电机2当前温度为"+QString::number(tem2)+",设备停机");
                     temlogsign2=false;
                 }
 
@@ -2063,7 +2027,6 @@ void Widget::getinfo()
                 ui->test_status3->setStyleSheet("color: red;");
                 ui->test_status3->setText("停机");
                 stopstop();
-                acsc_DisableAll(hComm, nullptr);
                 acsc_KillAll(hComm, nullptr);
                 return;  // 直接返回避免后续状态覆盖
             }
@@ -2107,17 +2070,13 @@ void Widget::getinfo()
         //这里判断水流量
         if((m_shuiliuliang1>Flowrate1)||(m_shuiliuliang2>Flowrate2)){
             if(m_shuiliuliang1>Flowrate1){
-                //disableall2();
-                stopstop();
-                acsc_DisableAll(hComm,NULL);
-                acsc_KillAll(hComm, NULL);
-                ui->label_50->setStyleSheet("QLabel {"" color: yellow; "" background-color: red;""}");
+                ui->label_50->setStyleSheet("QLabel {"" color: black; "" background-color: yellow;""}");
 
-                ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 15px; " "border: 2px solid black; ""}");
+                ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: yellow; ""border-radius: 15px; " "border: 2px solid black; ""}");
                 if(flowlogsign1)
                 {
-                    qWarning()<<"电机1当前水流量为"+QString::number(Flowrate1)+",设备停机下使能";
-                    logWindow->addLog("Warning","电机1当前水流量为"+QString::number(Flowrate1)+"设备停机下使能");
+                    qWarning()<<"电机1当前水流量为"+QString::number(Flowrate1)+",水流量过低";
+                    logWindow->addLog("Warning","电机1当前水流量为"+QString::number(Flowrate1)+",水流量过低");
                     flowlogsign1=false;
                 }
             }else
@@ -2133,16 +2092,12 @@ void Widget::getinfo()
             }
 
             if(m_shuiliuliang2>Flowrate2){
-                //disableall2();
-                stopstop();
-                acsc_DisableAll(hComm,NULL);
-                acsc_KillAll(hComm, NULL);
-                ui->label_55->setStyleSheet("QLabel {"" color: yellow; "" background-color: red;""}");
-                ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: red; ""border-radius: 15px; " "border: 2px solid black; ""}");
+                ui->label_55->setStyleSheet("QLabel {"" color: black; "" background-color: yellow;""}");
+                ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: yellow; ""border-radius: 15px; " "border: 2px solid black; ""}");
                 if(flowlogsign2)
                 {
-                    qWarning()<<"电机2当前水流量为"+QString::number(Flowrate2)+"设备停机下使能";
-                    logWindow->addLog("Warning","电机2当前水流量为"+QString::number(Flowrate2)+"设备停机下使能");
+                    qWarning()<<"电机2当前水流量为"+QString::number(Flowrate2)+",水流量过低";
+                    logWindow->addLog("Warning","电机2当前水流量为"+QString::number(Flowrate2)+",水流量过低");
                     flowlogsign2=false;
                 }
             }
@@ -2164,6 +2119,13 @@ void Widget::getinfo()
             ui->zsd_flow1->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
 
             ui->zsd_flow2->setStyleSheet("QLabel { ""background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
+            if((!flowlogsign1)||(!flowlogsign2))
+            {
+                qInfo()<<"电机水流量恢复正常";
+                logWindow->addLog("Info","电机水流量恢复正常");
+                flowlogsign1=true;
+                flowlogsign2=true;
+            }
         }
 
 
@@ -2262,14 +2224,6 @@ void Widget::on_checkBox_start_tem1_stateChanged(int arg1)
     {
         mGraph5_1->setVisible(false);mPlot1->replot();
     }else{
-        mGraph5_5->setVisible(false);
-        mGraph5_6->setVisible(false);
-        mGraph5_7->setVisible(false);
-        mGraph5_8->setVisible(false);
-        ui->checkBox_start_tem_old1->setChecked(false);
-        ui->checkBox_start_tem_old2->setChecked(false);
-        ui->checkBox_start_current_old1->setChecked(false);
-        ui->checkBox_start_current_old2->setChecked(false);
         mGraph5_1->setVisible(true);
         mPlot5->replot();
     }
@@ -2281,14 +2235,6 @@ void Widget::on_checkBox_start_tem2_stateChanged(int arg1)
     {
         mGraph5_2->setVisible(false);mPlot1->replot();
     }else{
-        mGraph5_5->setVisible(false);
-        mGraph5_6->setVisible(false);
-        mGraph5_7->setVisible(false);
-        mGraph5_8->setVisible(false);
-        ui->checkBox_start_tem_old1->setChecked(false);
-        ui->checkBox_start_tem_old2->setChecked(false);
-        ui->checkBox_start_current_old1->setChecked(false);
-        ui->checkBox_start_current_old2->setChecked(false);
         mGraph5_2->setVisible(true);
         mPlot5->replot();
     }
@@ -2300,14 +2246,6 @@ void Widget::on_checkBox_start_current1_stateChanged(int arg1)
     {
         mGraph5_3->setVisible(false);mPlot1->replot();
     }else{
-        mGraph5_5->setVisible(false);
-        mGraph5_6->setVisible(false);
-        mGraph5_7->setVisible(false);
-        mGraph5_8->setVisible(false);
-        ui->checkBox_start_tem_old1->setChecked(false);
-        ui->checkBox_start_tem_old2->setChecked(false);
-        ui->checkBox_start_current_old1->setChecked(false);
-        ui->checkBox_start_current_old2->setChecked(false);
         mGraph5_3->setVisible(true);
         mPlot5->replot();
     }
@@ -2319,181 +2257,7 @@ void Widget::on_checkBox_start_current2_stateChanged(int arg1)
     {
         mGraph5_4->setVisible(false);mPlot1->replot();
     }else{
-        mGraph5_5->setVisible(false);
-        mGraph5_6->setVisible(false);
-        mGraph5_7->setVisible(false);
-        mGraph5_8->setVisible(false);
-        ui->checkBox_start_tem_old1->setChecked(false);
-        ui->checkBox_start_tem_old2->setChecked(false);
-        ui->checkBox_start_current_old1->setChecked(false);
-        ui->checkBox_start_current_old2->setChecked(false);
         mGraph5_4->setVisible(true);
-        mPlot5->replot();
-    }
-}
-
-void Widget::on_checkBox_start_tem_old1_stateChanged(int arg1)
-{
-    QVector<double>  a;
-    int pointIdx = 0;
-    a.reserve(3000);
-    a.clear();
-    mData5_5.clear();
-    mGraph5_5->data()->clear();
-    if(arg1==0)
-    {
-        mGraph5_5->setVisible(false);
-        mPlot5->replot();
-    }else{
-        mGraph5_1->setVisible(false);
-        mGraph5_2->setVisible(false);
-        mGraph5_3->setVisible(false);
-        mGraph5_4->setVisible(false);
-        ui->checkBox_start_tem1->setChecked(false);
-        ui->checkBox_start_tem2->setChecked(false);
-        ui->checkBox_start_current1->setChecked(false);
-        ui->checkBox_start_current2->setChecked(false);
-        mPlot5->replot();
-
-
-
-        refresh_olddata();
-        for (int i = 0; i < result.size(); i++) {          // i: 文件索引
-            for (int j = 0; j < result[i].size(); j++) {   // j: 行索引
-
-                mData5_5.append(result[i][j][0]);
-                a.append(pointIdx++);
-            }
-        }
-        qDebug()<<a.size();
-        qDebug()<<mData5_5.size();
-        mPlot5->xAxis->setRange(-100, 2200);
-        mPlot5->yAxis->setRange(-50, 150);
-        mGraph5_5->setData(a, mData5_5);
-        mGraph5_5->setVisible(true);
-        mPlot5->replot();
-    }
-}
-
-void Widget::on_checkBox_start_tem_old2_stateChanged(int arg1)
-{
-    QVector<double>  a;
-    int pointIdx = 0;
-    a.reserve(3000);
-    a.clear();
-    mData5_6.clear();
-    mGraph5_6->data()->clear();
-    if(arg1==0)
-    {
-        mGraph5_6->setVisible(false);
-        mPlot5->replot();
-    }else{
-        mGraph5_1->setVisible(false);
-        mGraph5_2->setVisible(false);
-        mGraph5_3->setVisible(false);
-        mGraph5_4->setVisible(false);
-        ui->checkBox_start_tem1->setChecked(false);
-        ui->checkBox_start_tem2->setChecked(false);
-        ui->checkBox_start_current1->setChecked(false);
-        ui->checkBox_start_current2->setChecked(false);
-        mPlot5->replot();
-
-
-
-        refresh_olddata();
-        for (int i = 0; i < result.size(); i++) {          // i: 文件索引
-            for (int j = 0; j < result[i].size(); j++) {   // j: 行索引
-
-                mData5_6.append(result[i][j][1]);
-                a.append(pointIdx++);
-            }
-        }
-        mPlot5->xAxis->setRange(-100, 2200);
-        mPlot5->yAxis->setRange(-50, 150);
-        mGraph5_6->setData(a, mData5_6);
-        mGraph5_6->setVisible(true);
-        mPlot5->replot();
-    }
-}
-
-void Widget::on_checkBox_start_current_old1_stateChanged(int arg1)
-{
-    QVector<double>  a;
-    int pointIdx = 0;
-    a.reserve(3000);
-    a.clear();
-    mData5_7.clear();
-    mGraph5_7->data()->clear();
-    if(arg1==0)
-    {
-        mGraph5_7->setVisible(false);
-        mPlot5->replot();
-    }else{
-        mGraph5_1->setVisible(false);
-        mGraph5_2->setVisible(false);
-        mGraph5_3->setVisible(false);
-        mGraph5_4->setVisible(false);
-        ui->checkBox_start_tem1->setChecked(false);
-        ui->checkBox_start_tem2->setChecked(false);
-        ui->checkBox_start_current1->setChecked(false);
-        ui->checkBox_start_current2->setChecked(false);
-        mPlot5->replot();
-
-
-
-        refresh_olddata();
-        for (int i = 0; i < result.size(); i++) {          // i: 文件索引
-            for (int j = 0; j < result[i].size(); j++) {   // j: 行索引
-
-                mData5_7.append(result[i][j][2]);
-                a.append(pointIdx++);
-            }
-        }
-        mPlot5->xAxis->setRange(-100, 2200);
-        mPlot5->yAxis->setRange(-50, 150);
-        mGraph5_7->setData(a, mData5_7);
-        mGraph5_7->setVisible(true);
-        mPlot5->replot();
-    }
-}
-
-void Widget::on_checkBox_start_current_old2_stateChanged(int arg1)
-{
-    QVector<double>  a;
-    int pointIdx = 0;
-    a.reserve(3000);
-    a.clear();
-    mData5_8.clear();
-    mGraph5_8->data()->clear();
-    if(arg1==0)
-    {
-        mGraph5_8->setVisible(false);
-        mPlot5->replot();
-    }else{
-        mGraph5_1->setVisible(false);
-        mGraph5_2->setVisible(false);
-        mGraph5_3->setVisible(false);
-        mGraph5_4->setVisible(false);
-        ui->checkBox_start_tem1->setChecked(false);
-        ui->checkBox_start_tem2->setChecked(false);
-        ui->checkBox_start_current1->setChecked(false);
-        ui->checkBox_start_current2->setChecked(false);
-        mPlot5->replot();
-
-
-
-        refresh_olddata();
-        for (int i = 0; i < result.size(); i++) {          // i: 文件索引
-            for (int j = 0; j < result[i].size(); j++) {   // j: 行索引
-
-                mData5_8.append(result[i][j][3]);
-                a.append(pointIdx++);
-            }
-        }
-        mPlot5->xAxis->setRange(-100, 2200);
-        mPlot5->yAxis->setRange(-50, 150);
-        mGraph5_8->setData(a, mData5_8);
-        mGraph5_8->setVisible(true);
         mPlot5->replot();
     }
 }
@@ -3817,61 +3581,18 @@ void Widget::on_test_stop_clicked()
     stopTestMotion();
 }
 
-void Widget::on_btn_set_load_set_clicked()
-{
-    t_addlog(1,"软件参数加载");
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Open XML File"), QDir::homePath(), tr("XML Files (*.xml)"));
-
-    if (filePath.isEmpty()) {
-        QMessageBox::warning(this, "Operation Cancelled", "No file selected.");
-        return;
-    }
-
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        QMessageBox::critical(this, "Error", QString("Failed to open file for reading: %1").arg(filePath));
-        return;
-    }
-
-    QDomDocument doc;
-    if (!doc.setContent(&file)) {
-        QMessageBox::critical(this, "Error", "Failed to parse XML file.");
-        file.close();
-        return;
-    }
-    file.close();
-
-    QDomElement root = doc.documentElement();
-
-    if (root.tagName() != "Protect_Parameters") {
-        QMessageBox::warning(this, "Invalid File", "请选择保护参数文件，而不是运动参数文件");
-        return;
-    }
-
-    ui->spin_set_warn_tem1->setText(root.firstChildElement("warn_tem1").text());
-    ui->spin_set_warn_tem2->setText(root.firstChildElement("warn_tem2").text());
-    ui->spin_set_wrong_tem1->setText(root.firstChildElement("wrong_tem1").text());
-    ui->spin_set_wrong_tem2->setText(root.firstChildElement("wrong_tem2").text());
-    ui->spin_set_warn_current1->setText(root.firstChildElement("warn_current1").text());
-    ui->spin_set_warn_current2->setText(root.firstChildElement("warn_current2").text());
-    ui->spin_set_wrong_current1->setText(root.firstChildElement("wrong_current1").text());
-    ui->spin_set_wrong_current2->setText(root.firstChildElement("wrong_current2").text());
-    ui->spin_set_flow1->setText(root.firstChildElement("flow1").text());
-    ui->spin_set_flow2->setText(root.firstChildElement("flow2").text());
-    ui->spin_set_press1->setText(root.firstChildElement("press1").text());
-    ui->spin_set_press2->setText(root.firstChildElement("press2").text());
-
-
-
-    ui->line_set_prot_vel->setText(QString::number(root.firstChildElement("prot_vel").text().toDouble()));
-    ui->line_set_prot_accdec->setText(QString::number(root.firstChildElement("prot_accdec").text().toDouble()));
-    ui->line_set_prot_movemax->setText(QString::number(root.firstChildElement("prot_movemax").text().toDouble()));
-    ui->line_set_prot_movemin->setText(QString::number(root.firstChildElement("prot_movemin").text().toDouble()));
-    ui->line_set_log_size->setText(QString::number(root.firstChildElement("log_size").text().toDouble()));
-}
-
 void Widget::on_btn_set_save_set_clicked()
 {
+    const QMessageBox::StandardButton answer = QMessageBox::question(
+                this,
+                tr("确认保存"),
+                tr("确定要保存当前配置吗？"),
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No);
+    if (answer != QMessageBox::Yes) {
+        return;
+    }
+
     t_addlog(1,"软件参数保存");
     double warn_tem1=ui->spin_set_warn_tem1->text().toDouble();                       //告警温度
     double warn_tem2=ui->spin_set_warn_tem2->text().toDouble();                     //告警温度2
@@ -3968,33 +3689,28 @@ void Widget::on_btn_set_save_set_clicked()
 
 
 
-    QString filePath = QFileDialog::getSaveFileName(this, tr("Save XML File"), QDir::homePath(), tr("XML Files (*.xml)"));
-
-    if (filePath.isEmpty()) {
-        //QMessageBox::warning(this, "Operation Cancelled", "No file selected.");
+    QString currentDir = QCoreApplication::applicationDirPath();
+    QString filePath = currentDir + "/initprotectdata.xml";
+    QSaveFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        const QString message = QString("配置保存失败：%1").arg(file.errorString());
+        t_addlog(2, message);
+        QMessageBox::critical(this, tr("保存失败"), message);
         return;
     }
 
-    // 保存到文件
-    QFile file(filePath);
-    if (file.open(QIODevice::WriteOnly)) {
-        QTextStream out(&file);
-        out << doc.toString();
-        file.close();
-        QMessageBox::information(this, "Success", QString("成功保存到 %1").arg(filePath));
-    } else {
-        QMessageBox::critical(this, "Error", QString("Failed to open file for writing: %1").arg(filePath));
+    QTextStream out(&file);
+    out << doc.toString();
+    out.flush();
+    if (out.status() != QTextStream::Ok || !file.commit()) {
+        const QString message = QString("配置保存失败：%1").arg(file.errorString());
+        t_addlog(2, message);
+        QMessageBox::critical(this, tr("保存失败"), message);
+        return;
     }
 
-    QString currentDir = QCoreApplication::applicationDirPath();
-    QString filePath2 = currentDir + "/initprotectdata.xml";
-    QFile file2(filePath2);
-    if (file2.open(QIODevice::WriteOnly)) {
-        QTextStream out(&file2);
-        out << doc.toString();
-        file.close();
-
-    }
+    t_addlog(1, QString("软件参数已保存：%1").arg(filePath));
+    QMessageBox::information(this, tr("保存成功"), tr("当前配置已保存。"));
 }
 
 void Widget::init_protcet_xml()
@@ -4259,7 +3975,6 @@ void Widget::user_enableall()
     ui->line_set_log_size->setEnabled(true);
     ui->btn_set_change_csv_path->setEnabled(true);
     ui->btn_set_change_image_path->setEnabled(true);
-    ui->btn_set_load_set->setEnabled(true);
     ui->btn_set_save_set->setEnabled(true);
     ui->set_protect_key->setEnabled(true);
     ui->btn_set_change_csv_path->setStyleSheet(
@@ -4267,10 +3982,6 @@ void Widget::user_enableall()
                 "    border-radius: 8px;""}""QPushButton:hover { background-color: #40739e; }"
                 "QPushButton:pressed { background-color: #2c3e50; }");
     ui->btn_set_change_image_path->setStyleSheet(
-                "QPushButton {""    background-color: #487eb0;""    color: white;""    border: none;"
-                "    border-radius: 8px;""}""QPushButton:hover { background-color: #40739e; }"
-                "QPushButton:pressed { background-color: #2c3e50; }");
-    ui->btn_set_load_set->setStyleSheet(
                 "QPushButton {""    background-color: #487eb0;""    color: white;""    border: none;"
                 "    border-radius: 8px;""}""QPushButton:hover { background-color: #40739e; }"
                 "QPushButton:pressed { background-color: #2c3e50; }");
@@ -4307,7 +4018,6 @@ void Widget::user_disableall()
     ui->line_set_log_size->setEnabled(false);
     ui->btn_set_change_csv_path->setEnabled(false);
     ui->btn_set_change_image_path->setEnabled(false);
-    ui->btn_set_load_set->setEnabled(false);
     ui->btn_set_save_set->setEnabled(false);
     ui->set_protect_key->setEnabled(false);
     ui->btn_set_change_csv_path->setStyleSheet(
@@ -4316,11 +4026,6 @@ void Widget::user_disableall()
                 "QPushButton:pressed { background-color: #2c3e50; }""QPushButton:disabled {"
             "    background-color: #bdc3c7;""    color: #7f8c8d;""}");
     ui->btn_set_change_image_path->setStyleSheet(
-                "QPushButton {""    background-color: #487eb0;""    color: white;""    border: none;"
-                "    border-radius: 8px;""}""QPushButton:hover { background-color: #40739e; }"
-                "QPushButton:pressed { background-color: #2c3e50; }""QPushButton:disabled {"
-            "    background-color: #bdc3c7;""    color: #7f8c8d;""}");
-    ui->btn_set_load_set->setStyleSheet(
                 "QPushButton {""    background-color: #487eb0;""    color: white;""    border: none;"
                 "    border-radius: 8px;""}""QPushButton:hover { background-color: #40739e; }"
                 "QPushButton:pressed { background-color: #2c3e50; }""QPushButton:disabled {"
@@ -4705,170 +4410,6 @@ void Widget::on_save_image4_clicked()
 {
     t_addlog(1,"保存电流图表截图");
     saveFrameimage(4,ui->frame_test4);
-}
-
-void Widget::refresh_olddata()
-{
-    result.clear();
-    QString currentDir2 = QCoreApplication::applicationDirPath();
-    QString filePath = currentDir2 + "/savepath.txt";
-    QFile file(filePath);
-
-    QString dataPath, imagePath;
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine();
-            if (line.startsWith("datapath=")) {
-                dataPath = line;
-            } else if (line.startsWith("imagepath=")) {
-                imagePath = line;
-            }
-        }
-        file.close();
-    }
-
-    QDateTime currentTime = QDateTime::currentDateTime();
-    QString timestamp = currentTime.toString("yyyy.MM.dd.HH.mm.ss");
-
-    QString datapath2 = dataPath.mid(dataPath.indexOf('=') + 1);
-    QDir dataDir(datapath2);
-    QString dataFolderPath = dataDir.absoluteFilePath("data");
-
-    if (!QDir(dataFolderPath).exists()) {
-        if (!dataDir.mkdir("data")) {
-            qWarning() << "Failed to create directory:" << dataFolderPath;
-            return;
-        }
-    }
-
-    QString folderPath = dataFolderPath + "/" + gettestnumber();
-    QDir dir(folderPath);
-    QFileInfoList files = dir.entryInfoList(QStringList() << "*Cyclic_Motion*.csv", QDir::Files);
-    int n = files.size();
-    qDebug() << "找到的CSV文件数量:" << n;
-
-
-    QList<int> validLineCounts;
-    for (const QFileInfo &fileInfo : files) {
-        QFile file(fileInfo.absoluteFilePath());
-        if (!file.open(QIODevice::ReadOnly)) {
-            qWarning() << "无法打开文件:" << file.fileName();
-            validLineCounts.append(0);
-            continue;
-        }
-
-        QTextStream in(&file);
-        in.readLine();
-        in.readLine();
-
-        int count = 0;
-        while (!in.atEnd()) {
-            QString line = in.readLine().trimmed();
-            if (line.isEmpty()) continue;
-            QStringList cols = line.split(',');
-            if (cols.size() >= 5) count++;
-        }
-        file.close();
-        validLineCounts.append(count);
-    }
-
-    int totalValidLines = 0;
-    for (int count : validLineCounts) {
-        totalValidLines += count;
-    }
-
-    const int TOTAL_NEEDED = 2000;
-    QList<int> rowsPerFile;
-    if (totalValidLines <= TOTAL_NEEDED) {
-        for (int i = 0; i < n; ++i) {
-            rowsPerFile.append(validLineCounts[i]);
-        }
-    } else {
-        for (int i = 0; i < n; ++i) {
-            rowsPerFile.append(static_cast<int>(static_cast<double>(validLineCounts[i]) / totalValidLines * TOTAL_NEEDED));
-        }
-
-        int currentSum = 0;
-        for (int count : rowsPerFile) {
-            currentSum += count;
-        }
-        if (currentSum < TOTAL_NEEDED) {
-            for (int i = 0; i < TOTAL_NEEDED - currentSum; ++i) {
-                if (i < rowsPerFile.size()) {
-                    rowsPerFile[i]++;
-                }
-            }
-        } else if (currentSum > TOTAL_NEEDED) {
-            for (int i = 0; i < currentSum - TOTAL_NEEDED; ++i) {
-                if (i < rowsPerFile.size()) {
-                    rowsPerFile[i]--;
-                }
-            }
-        }
-    }
-
-    for (int i = 0; i < files.size(); ++i) {
-        if (rowsPerFile[i] <= 0) continue;
-
-        QFile file(files[i].absoluteFilePath());
-        if (!file.open(QIODevice::ReadOnly)) {
-            qWarning() << "无法打开文件:" << file.fileName();
-            continue;
-        }
-
-        QTextStream in(&file);
-        in.readLine();
-        in.readLine();
-
-        QList<QStringList> validLines;
-        while (!in.atEnd()) {
-            QString line = in.readLine().trimmed();
-            if (line.isEmpty()) continue;
-            QStringList cols = line.split(',');
-            if (cols.size() >= 5) {
-                validLines.append(cols);
-            }
-        }
-        file.close();
-
-        if (validLines.isEmpty()) continue;
-
-        QList<QList<double>> fileData;
-        int needed = rowsPerFile[i];
-        for (int j = 0; j < needed; ++j) {
-            int idx = static_cast<int>(static_cast<double>(j) / needed * validLines.size());
-            if (idx >= validLines.size()) idx = validLines.size() - 1;
-
-            QStringList cols = validLines[idx];
-            bool ok1, ok2, ok3, ok4;
-            double v2 = cols[1].toDouble(&ok1);
-            double v3 = cols[2].toDouble(&ok2);
-            double v4 = cols[3].toDouble(&ok3);
-            double v5 = cols[4].toDouble(&ok4);
-
-            if (!ok1 || !ok2 || !ok3 || !ok4) {
-                qDebug() << "数据转换失败，行内容:" << cols;
-                continue;
-            }
-            fileData.append({v2, v3, v4, v5});
-        }
-
-        if (!fileData.isEmpty()) {
-            result.append(fileData);
-        }
-    }
-
-    int finalSize = 0;
-    for (const QList<QList<double>> &data : result) {
-        finalSize += data.size();
-    }
-
-    if (finalSize < TOTAL_NEEDED) {
-        qDebug() << "最终数据不足2000行，实际获取:" << finalSize << "行";
-    } else {
-        qDebug() << "成功获取2000行数据";
-    }
 }
 
 void Widget::on_t_log_clicked()

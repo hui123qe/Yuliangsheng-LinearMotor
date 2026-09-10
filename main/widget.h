@@ -251,8 +251,6 @@ private slots:
 
     void on_test_stop_clicked();
 
-    void on_btn_set_load_set_clicked();
-
     void on_btn_set_save_set_clicked();
 
     void on_btn_set_change_csv_path_clicked();
@@ -271,14 +269,6 @@ private slots:
     void onMousePress(QMouseEvent *event);
     void onMouseRelease(QMouseEvent *event);
 
-
-    void on_checkBox_start_tem_old1_stateChanged(int arg1);
-
-    void on_checkBox_start_tem_old2_stateChanged(int arg1);
-
-    void on_checkBox_start_current_old1_stateChanged(int arg1);
-
-    void on_checkBox_start_current_old2_stateChanged(int arg1);
 
     void on_checkBox_test1_pos1_stateChanged(int arg1);
 
@@ -385,14 +375,12 @@ private:
     QVector<double> mData4_1,mData4_2;
 
     QCustomPlot *mPlot5;
-    QCPGraph *mGraph5_1,*mGraph5_2,*mGraph5_3,*mGraph5_4,*mGraph5_5,*mGraph5_6,*mGraph5_7,*mGraph5_8;
-    QVector<double> mData5_1,mData5_2,mData5_3,mData5_4,mData5_5,mData5_6,mData5_7,mData5_8;
+    QCPGraph *mGraph5_1,*mGraph5_2,*mGraph5_3,*mGraph5_4;
+    QVector<double> mData5_1,mData5_2,mData5_3,mData5_4;
 
     int movesign1=1,movesign2=1,movesign3=1,movesign4=1,movesign5=1;
 
 
-    void refresh_olddata();
-    QList<QList<QList<double>>> result;
     //全部定时器
     QTimer* getinfotimer1;//获取数据定时器
     //QThread* m_workThread;
