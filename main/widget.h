@@ -395,6 +395,7 @@ private:
     QFuture<void>future;
     std::atomic<int> m_recycleMoveNum{0}; //往复运动次数
     QTimer *xunhuantimer;
+    QTimer *xunhuanSaveTimer{nullptr};
     QTime xunhuanstarttime,xunhuanpausetime;
     int lastrecyclenum,allrecyclenum;//最后一次循环运动次数，累积总循环次数
     int startcyclenum;

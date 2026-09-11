@@ -140,6 +140,7 @@ void AcquireThread::run()
 {
     QElapsedTimer sampleTimer;
     sampleTimer.start();
+    const qint64 samplePeriodUs = 20 * 1000;
     const int BATCH_WRITE_COUNT = 50;
     QVector<SampleFrame> batchCache;
     batchCache.reserve(BATCH_WRITE_COUNT);
@@ -162,7 +163,7 @@ void AcquireThread::run()
         }
 
         qint64 usedMs = sampleTimer.elapsed() - loopStart;
-        qint64 sleepUs = 1000 - usedMs*1000;
+        qint64 sleepUs = samplePeriodUs - usedMs*1000;
         if(sleepUs > 0)
         {
             usleep(sleepUs);
@@ -1612,6 +1613,12 @@ void Widget::connect_init()
     this->xunhuantimer = new QTimer;   //循环运动累计时间计时器
     connect(this->xunhuantimer,SIGNAL(timeout()),this,SLOT(updatexunhuanTime()));
 
+    this->xunhuanSaveTimer = new QTimer(this);
+    this->xunhuanSaveTimer->setInterval(5 * 60 * 1000);
+    connect(this->xunhuanSaveTimer, &QTimer::timeout, this, [this]() {
+        writeTestTime(ui->above_time->text());
+    });
+
 
     //每秒检查一次操作日志大小
     checkcsv_timer =new QTimer(this);
@@ -2759,7 +2766,6 @@ void Widget::updatexunhuanTime()
     QString showStr = QString::number(totalDays) + "." + showTime.toString("hh:mm:ss:zzz");
 
     ui->above_time->setText(showStr);
-    writeTestTime(showStr);
 }
 
 void Widget::checkcsv()
@@ -3109,7 +3115,7 @@ bool Widget::startMotionRecording(double velocity,
     conditions.velocity = velocity;
     conditions.acceleration = acceleration;
     conditions.waitTimeMilliseconds = waitTimeMilliseconds;
-    conditions.temperatureSamplePeriodSeconds = 0.001;
+    conditions.temperatureSamplePeriodSeconds = 0.02;
 
     const QString outputDirectory = getTestDataFolderPath();
     t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 请求启动采集：速度=%1，加速度=%2，等待=%3ms，目录=%4")
@@ -3151,6 +3157,7 @@ void Widget::stopTestMotion()
     t_addlog(1, "停止运动");
     ui->test_start_move->setEnabled(true);
     xunhuantimer->stop();
+    xunhuanSaveTimer->stop();
     t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 准备调用ACS Halt，axis=%1")
                     .arg(final_axis));
     int haltResult = 0;
@@ -3162,6 +3169,8 @@ void Widget::stopTestMotion()
     }
     t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] ACS Halt返回，result=%1")
                     .arg(haltResult));
+
+    writeTestTime(ui->above_time->text());
 
     stopMotionRecording();
     t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 已通知采集服务停止并保存"));
@@ -3281,6 +3290,7 @@ void Widget::on_test_start_move_clicked()
             xunhuanstarttime=xunhuanstarttime.addMSecs(t);;
         }
         xunhuantimer->start(10);
+        xunhuanSaveTimer->start();
     }
     motionStopRequested_ = false;
     flag.store(true, std::memory_order_release);
