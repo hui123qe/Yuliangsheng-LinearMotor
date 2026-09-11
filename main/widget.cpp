@@ -3337,10 +3337,8 @@ void Widget::on_test_start_move_clicked()
         {
             if(l_axis==2)
             {
-                int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1,-1};
-                double aa=l_pointA;
-                double Points[] = {aa, aa};
-                acsc_ToPointM(localHcomm,0,Axes,Points,nullptr );
+                acsc_ToPoint(localHcomm, 0, ACSC_AXIS_0, l_pointA, nullptr);
+                acsc_ToPoint(localHcomm, 0, ACSC_AXIS_1, l_pointA, nullptr);
             }else if(l_axis==0){
                 acsc_ToPoint(localHcomm,0,l_axis,l_pointA,nullptr);
             }else if(l_axis==1){
@@ -3366,10 +3364,8 @@ void Widget::on_test_start_move_clicked()
 
             if(l_axis==2)
             {
-                int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1,-1};
-                double aa=l_pointB;
-                double Points[] = {aa, aa};
-                acsc_ToPointM(localHcomm,0,Axes,Points,nullptr );
+                acsc_ToPoint(localHcomm, 0, ACSC_AXIS_0, l_pointB, nullptr);
+                acsc_ToPoint(localHcomm, 0, ACSC_AXIS_1, l_pointB, nullptr);
             }else if(l_axis==0){
                 acsc_ToPoint(localHcomm,0,l_axis,l_pointB,nullptr);
             }else if(l_axis==1){
