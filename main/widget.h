@@ -15,8 +15,6 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDesktopServices>
-#include <QFormLayout>
-#include <QDialogButtonBox>
 #include "qcustomplot.h"
 #include "logwindow.h"
 #include "savelog.h"
@@ -260,9 +258,6 @@ private slots:
     void on_btn_set_open_csv_path_clicked();
 
     void on_btn_set_opene_image_path_clicked();
-
-    void on_pushButton_clicked();
-
 
     //图表相关
 
