@@ -50,16 +50,20 @@ class AcquisitionWorker final : public QObject
     Q_OBJECT
 
 public:
-    explicit AcquisitionWorker(const AcquisitionConnectionSettings& connectionSettings)
+    AcquisitionWorker(const AcquisitionConnectionSettings& connectionSettings,
+                      ExcelSessionWriter* writer)
         : connectionSettings_(connectionSettings),
           controllerHandle_(ACSC_INVALID),
           pollTimer_(new QTimer(this)),
+          writer_(writer),
           active_(false),
           stopRequested_(false),
           controllerStarted_(false),
           nextSequence_(1),
           lastLoggedAcquisitionState_(-1),
-          lastLoggedPublishedSequence_(-1)
+          lastLoggedPublishedSequence_(-1),
+          currentSampleCount_(0),
+          temperatureSampleCount_(0)
     {
         pollTimer_->setInterval(kMetadataPollIntervalMilliseconds);
         connect(pollTimer_, &QTimer::timeout, this, &AcquisitionWorker::pollController);
@@ -122,16 +126,30 @@ public:
             session_.conditions.currentSamplePeriodSeconds = controllerSamplePeriod;
         }
 
+        bool writerStarted = false;
+        QString writerError;
+        QMetaObject::invokeMethod(writer_, [this, &writerStarted, &writerError]() {
+            writerStarted = writer_->startSession(session_, &writerError);
+        }, Qt::BlockingQueuedConnection);
+        if (!writerStarted) {
+            setError(errorMessage, writerError);
+            session_ = AcquisitionSessionData();
+            return false;
+        }
+
         nextSequence_ = 1;
         stopRequested_ = false;
         controllerStarted_ = false;
         lastLoggedAcquisitionState_ = -1;
         lastLoggedPublishedSequence_ = -1;
+        currentSampleCount_ = 0;
+        temperatureSampleCount_ = 0;
         stopTimer_.invalidate();
         acquisitionTrace(QStringLiteral("准备写入ACQ_RUN=1"));
         if (!writeAcquisitionRun(1)) {
             setError(errorMessage,
                      QStringLiteral("无法启动采集Buffer：%1").arg(acsErrorText()));
+            abortWriterSession();
             session_ = AcquisitionSessionData();
             return false;
         }
@@ -146,6 +164,7 @@ public:
                 setError(errorMessage,
                          QStringLiteral("确认采集Buffer启动状态失败：%1")
                              .arg(acsErrorText()));
+                abortWriterSession();
                 session_ = AcquisitionSessionData();
                 return false;
             }
@@ -164,6 +183,7 @@ public:
                      QStringLiteral("采集Buffer未在%1毫秒内进入运行状态，当前ACQ_STATE=%2。")
                          .arg(kStartTimeoutMilliseconds)
                          .arg(runningState));
+            abortWriterSession();
             session_ = AcquisitionSessionData();
             return false;
         }
@@ -179,7 +199,18 @@ public:
     void appendTemperatureSamples(const QVector<TemperatureSample>& samples)
     {
         if (active_ && !stopRequested_ && !samples.isEmpty()) {
-            session_.temperatureSamples += samples;
+            temperatureSampleCount_ += samples.size();
+            ExcelSessionWriter* writer = writer_;
+            QMetaObject::invokeMethod(writer, [writer, samples]() {
+                writer->appendTemperatureSamples(samples);
+            }, Qt::QueuedConnection);
+        }
+    }
+
+    void handleWriterFailure(const QString& message)
+    {
+        if (active_) {
+            failSession(message);
         }
     }
 
@@ -448,14 +479,20 @@ private:
                              .arg(QDateTime::fromMSecsSinceEpoch(blockReturnedAtMs)
                                       .toString(QStringLiteral("yyyy-MM-dd HH:mm:ss.zzz"))));
 
-        session_.currentSamples.reserve(session_.currentSamples.size() + sampleCount);
+        QVector<CurrentSample> samples;
+        samples.reserve(sampleCount);
         for (int index = 0; index < sampleCount; ++index) {
             CurrentSample sample;
             sample.timeStampMs = blockReturnedAtMs - (sampleCount - 1 - index);
             sample.currentX1 = currentX1.at(index);
             sample.currentX2 = currentX2.at(index);
-            session_.currentSamples.append(sample);
+            samples.append(sample);
         }
+        currentSampleCount_ += samples.size();
+        ExcelSessionWriter* writer = writer_;
+        QMetaObject::invokeMethod(writer, [writer, samples]() {
+            writer->appendCurrentSamples(samples);
+        }, Qt::QueuedConnection);
         return true;
     }
 
@@ -464,13 +501,13 @@ private:
         pollTimer_->stop();
         active_ = false;
 
-        acquisitionTrace(QStringLiteral("Buffer排空完成，开始保存：电流=%1，温度=%2")
-                             .arg(session_.currentSamples.size())
-                             .arg(session_.temperatureSamples.size()));
+        acquisitionTrace(QStringLiteral("Buffer排空完成，提交最后分页：电流=%1，温度=%2")
+                             .arg(currentSampleCount_)
+                             .arg(temperatureSampleCount_));
 
         QStringList savedFiles;
         QString errorMessage;
-        if (!ExcelSessionWriter::save(session_, &savedFiles, &errorMessage)) {
+        if (!finalizeWriterSession(&savedFiles, &errorMessage)) {
             session_ = AcquisitionSessionData();
             emit sessionFailed(errorMessage);
             return;
@@ -485,23 +522,64 @@ private:
     {
         qWarning().noquote() << "[ACQ_TRACE] 采集会话失败：" << message;
         pollTimer_->stop();
-        if (active_) {
+        const bool hadActiveSession = active_;
+        if (hadActiveSession) {
             writeAcquisitionRun(0);
         }
         active_ = false;
+
+        QString reportedMessage = message;
+        if (hadActiveSession) {
+            QStringList savedFiles;
+            QString saveError;
+            if (finalizeWriterSession(&savedFiles, &saveError)) {
+                if (!savedFiles.isEmpty()) {
+                    reportedMessage += QStringLiteral("；已保存已接收数据：%1")
+                                           .arg(savedFiles.join(QStringLiteral("；")));
+                }
+            } else {
+                abortWriterSession();
+                if (!saveError.isEmpty()) {
+                    reportedMessage += QStringLiteral("；同时保存失败：%1")
+                                           .arg(saveError);
+                }
+            }
+        } else {
+            abortWriterSession();
+        }
         session_ = AcquisitionSessionData();
-        emit sessionFailed(message);
+        emit sessionFailed(reportedMessage);
+    }
+
+    bool finalizeWriterSession(QStringList* savedFiles, QString* errorMessage)
+    {
+        bool saved = false;
+        QMetaObject::invokeMethod(writer_, [this, &saved, savedFiles, errorMessage]() {
+            saved = writer_->finishSession(savedFiles, errorMessage);
+        }, Qt::BlockingQueuedConnection);
+        return saved;
+    }
+
+    void abortWriterSession()
+    {
+        ExcelSessionWriter* writer = writer_;
+        QMetaObject::invokeMethod(writer, [writer]() {
+            writer->abortSession();
+        }, Qt::QueuedConnection);
     }
 
     AcquisitionConnectionSettings connectionSettings_;
     HANDLE controllerHandle_;
     QTimer* pollTimer_;
+    ExcelSessionWriter* writer_;
     bool active_;
     bool stopRequested_;
     bool controllerStarted_;
     int nextSequence_;
     int lastLoggedAcquisitionState_;
     int lastLoggedPublishedSequence_;
+    qint64 currentSampleCount_;
+    qint64 temperatureSampleCount_;
     QElapsedTimer stopTimer_;
     AcquisitionSessionData session_;
 };
@@ -510,6 +588,8 @@ DataAcquisitionService::DataAcquisitionService(QObject* parent)
     : QObject(parent),
       workerThread_(nullptr),
       worker_(nullptr),
+      writerThread_(nullptr),
+      writer_(nullptr),
       initialized_(false),
       collecting_(false),
       acceptingTemperature_(false)
@@ -528,8 +608,12 @@ void DataAcquisitionService::initialize(
         return;
     }
 
+    writerThread_ = new QThread(this);
+    writer_ = new ExcelSessionWriter();
+    writer_->moveToThread(writerThread_);
+
     workerThread_ = new QThread(this);
-    worker_ = new AcquisitionWorker(connectionSettings);
+    worker_ = new AcquisitionWorker(connectionSettings, writer_);
     worker_->moveToThread(workerThread_);
 
     connect(worker_, &AcquisitionWorker::sessionStarted,
@@ -546,8 +630,14 @@ void DataAcquisitionService::initialize(
                 acceptingTemperature_ = false;
                 emit collectionFailed(message);
             });
+    connect(writer_, &ExcelSessionWriter::writeFailed,
+            worker_, [this](const QString& message) {
+                worker_->handleWriterFailure(message);
+            });
     connect(workerThread_, &QThread::finished, worker_, &QObject::deleteLater);
+    connect(writerThread_, &QThread::finished, writer_, &QObject::deleteLater);
 
+    writerThread_->start();
     workerThread_->start();
     initialized_ = true;
     acquisitionTrace(QStringLiteral("采集服务初始化完成：mode=%1，address=%2，port=%3")
@@ -568,11 +658,19 @@ void DataAcquisitionService::shutdown()
     QMetaObject::invokeMethod(worker_, [this]() {
         worker_->shutdownNow();
     }, Qt::BlockingQueuedConnection);
+
+    QMetaObject::invokeMethod(writer_, [this]() {
+        writer_->abortSession();
+    }, Qt::BlockingQueuedConnection);
     workerThread_->quit();
     workerThread_->wait();
+    writerThread_->quit();
+    writerThread_->wait();
 
     worker_ = nullptr;
     workerThread_ = nullptr;
+    writer_ = nullptr;
+    writerThread_ = nullptr;
     initialized_ = false;
     collecting_ = false;
 }

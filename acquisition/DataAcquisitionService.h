@@ -5,6 +5,7 @@
 #include <QObject>
 
 class AcquisitionWorker;
+class ExcelSessionWriter;
 class QThread;
 
 class DataAcquisitionService final : public QObject
@@ -35,6 +36,8 @@ signals:
 private:
     QThread* workerThread_;
     AcquisitionWorker* worker_;
+    QThread* writerThread_;
+    ExcelSessionWriter* writer_;
     bool initialized_;
     bool collecting_;
     bool acceptingTemperature_;
