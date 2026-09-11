@@ -59,8 +59,8 @@ bool AcquireThread::acquireOneFrame(SampleFrame &frame)
     acsc_GetFVelocity(m_hComm,ACSC_AXIS_0,&frame.vel1, NULL );
     acsc_GetFVelocity(m_hComm,ACSC_AXIS_1,&frame.vel2, NULL );
     //加速度
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FeedAcc0", 0, 0, 0, 0, &frame.acc1, nullptr);
-    acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"FeedAcc1", 0, 0, 0, 0, &frame.acc2, nullptr);
+    acsc_GetAcceleration(m_hComm, ACSC_AXIS_0, &frame.acc1, nullptr);
+    acsc_GetAcceleration(m_hComm, ACSC_AXIS_1, &frame.acc2, nullptr);
 
     //电流
     acsc_ReadReal(m_hComm, ACSC_NONE, (char*)"CurrentX1", 0, 0, 0, 0, &frame.current1, nullptr);
