@@ -2,10 +2,16 @@
 #define GLOBAL_H
 
 namespace Global {
-// 临时 ACS 变量名和电平，现场接线确定后在此替换。
-constexpr char DoorLockOutput[] = "DoorLock_OUT";
-constexpr char DoorLockInput[] = "DoorLock_IN";
-constexpr char LightCurtainInput[] = "LightCurtain_IN";
+// 使用控制器映射后的变量名。
+constexpr const char* DoorLockOutputs[] = {
+    "Lock1_OUT", "Lock2_OUT", "Lock3_OUT", "Lock4_OUT"
+};
+constexpr const char* DoorLockInputs[] = {
+    "LockOff1_IN", "LockOff2_IN", "LockOff3_IN", "LockOff4_IN"
+};
+constexpr int DoorLockLocked = 1;
+constexpr const char* LightCurtainInputs[] = {"SLC1_IN", "SLC2_IN"};
+constexpr int LightCurtainNormal = 0;
 constexpr int DoorLockOn = 1;
 constexpr int InputNormal = 1;
 // 现场急停接线电平相反时改为 true。

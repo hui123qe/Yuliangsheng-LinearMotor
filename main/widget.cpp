@@ -2985,10 +2985,12 @@ void Widget::setDoorLockEnabled(bool enabled)
 {
     int value = enabled ? Global::DoorLockOn : 1 - Global::DoorLockOn;
     t_addlog(1, enabled ? QStringLiteral("门锁：锁定") : QStringLiteral("门锁：解锁"));
-    if (!acsc_WriteInteger(hComm, ACSC_NONE,
-                           const_cast<char*>(Global::DoorLockOutput),
-                           0, 0, 0, 0, &value, nullptr)) {
-        t_addlog(2, QStringLiteral("门锁控制失败"));
+    for (const char* output : Global::DoorLockOutputs) {
+        if (!acsc_WriteInteger(hComm, ACSC_NONE,
+                              const_cast<char*>(output),
+                              0, 0, 0, 0, &value, ACSC_SYNCHRONOUS)) {
+            t_addlog(2, QStringLiteral("门锁控制失败：%1").arg(QString::fromLatin1(output)));
+        }
     }
     refreshSafetyStatus();
 }
@@ -3012,8 +3014,36 @@ bool Widget::refreshSafetyStatus()
         }
         return true;
     };
-    readInput(Global::DoorLockInput, Global::doorLockState);
-    readInput(Global::LightCurtainInput, Global::lightCurtainState);
+    bool doorLocksRead = true;
+    bool doorLocksLocked = true;
+    for (const char* input : Global::DoorLockInputs) {
+        int value = -1;
+        if (!readInput(input, value)) {
+            doorLocksRead = false;
+        }
+        if (value != Global::DoorLockLocked) {
+            doorLocksLocked = false;
+        }
+    }
+    Global::doorLockState = !doorLocksRead ? -1
+            : (doorLocksLocked ? Global::InputNormal : 1 - Global::InputNormal);
+    bool lightCurtainsRead = true;
+    bool lightCurtainsNormal = true;
+    for (const char* input : Global::LightCurtainInputs) {
+        int value = -1;
+        if (!readInput(input, value)) {
+            lightCurtainsRead = false;
+        }
+        if (value != Global::LightCurtainNormal) {
+            lightCurtainsNormal = false;
+        }
+    }
+    Global::lightCurtainState = !lightCurtainsRead ? -1
+            : (lightCurtainsNormal ? Global::InputNormal : 1 - Global::InputNormal);
+    if (Global::doorLockState == 0 || Global::lightCurtainState == 0) {
+        acsc_KillAll(hComm, ACSC_SYNCHRONOUS);
+    }
+
     int hardwareEmergencyStop = 0;
     const bool emergencyStopRead = acsc_GetSafetyInput(hComm,
                                                        ACSC_NONE,
@@ -3035,11 +3065,11 @@ bool Widget::refreshSafetyStatus()
                        QStringLiteral("#5d6d7e"));
     } else if (Global::doorLockState == Global::InputNormal) {
         setStatusLabel(ui->label_doorLockStatus,
-                       QStringLiteral("门锁：已锁定"),
+                       QStringLiteral("门锁：全部已锁定"),
                        QStringLiteral("#27ae60"));
     } else {
         setStatusLabel(ui->label_doorLockStatus,
-                       QStringLiteral("门锁：已解锁"),
+                       QStringLiteral("门锁：未全部锁定"),
                        QStringLiteral("#c0392b"));
     }
 
