@@ -940,8 +940,8 @@ void Widget::system_init()
     allrecyclenum=(a6).toInt();
 
     ui->above_all_num->setText(a6);
-    oldtime=readTestTime();
-    ui->above_time->setText(oldtime);
+    accumulatedTestMilliseconds = parseTestDurationMilliseconds(readTestTime());
+    ui->above_time->setText(formatTestDuration(accumulatedTestMilliseconds));
 
     logsize=(ui->line_set_log_size->text().toInt())*1000;
 
@@ -2769,30 +2769,11 @@ void Widget::handleWaveDataUpdate()
 
 void Widget::updatexunhuanTime()
 {
-    QTime current = QTime::currentTime();
-    int currentMsecs = this->xunhuanstarttime.msecsTo(current);
-
-    QStringList oldParts = oldtime.split('.');
-    int oldDays = 0;
-    int oldMsecs = 0;
-
-    if (oldParts.size() == 2) {
-        oldDays = oldParts[0].toInt();
-
-        QTime oldTime = QTime::fromString(oldParts[1], "hh:mm:ss:zzz");
-        if (oldTime.isValid()) {
-            oldMsecs = oldTime.msecsSinceStartOfDay();
-        }
+    qint64 totalMilliseconds = accumulatedTestMilliseconds;
+    if (xunhuanElapsedTimer.isValid()) {
+        totalMilliseconds += xunhuanElapsedTimer.elapsed();
     }
-
-    int totalMsecs = currentMsecs + oldMsecs;
-    int totalDays = oldDays + (totalMsecs / (1000 * 60 * 60 * 24));
-    totalMsecs %= (1000 * 60 * 60 * 24);
-
-    QTime showTime = QTime(0, 0, 0, 0).addMSecs(totalMsecs);
-    QString showStr = QString::number(totalDays) + "." + showTime.toString("hh:mm:ss:zzz");
-
-    ui->above_time->setText(showStr);
+    ui->above_time->setText(formatTestDuration(totalMilliseconds));
 }
 
 void Widget::checkcsv()
@@ -3366,6 +3347,11 @@ void Widget::stopTestMotion(bool haltMotion)
     ui->test_start_move->setEnabled(true);
     xunhuantimer->stop();
     xunhuanSaveTimer->stop();
+    if (xunhuanElapsedTimer.isValid()) {
+        accumulatedTestMilliseconds += xunhuanElapsedTimer.elapsed();
+        xunhuanElapsedTimer.invalidate();
+    }
+    updatexunhuanTime();
     if (haltMotion) {
         t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 准备调用ACS Halt，axis=%1")
                         .arg(final_axis));
@@ -3385,7 +3371,6 @@ void Widget::stopTestMotion(bool haltMotion)
     stopMotionRecording();
     t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 已通知采集服务停止并保存"));
     m_recycleMoveNum = 0;
-    xunhuanpausetime = QTime::currentTime();
 }
 
 
@@ -3507,14 +3492,7 @@ void Widget::on_test_start_move_clicked()
     m_recycleMoveNum=0;
     if(!xunhuantimer->isActive())
     {
-        if(xunhuanpausetime.isNull()){
-            xunhuanstarttime=QTime::currentTime();
-        }
-        else{
-            QTime cut = QTime::currentTime();
-            int t = xunhuanpausetime.msecsTo(cut);
-            xunhuanstarttime=xunhuanstarttime.addMSecs(t);;
-        }
+        xunhuanElapsedTimer.start();
         xunhuantimer->start(10);
         xunhuanSaveTimer->start();
     }
@@ -3639,7 +3617,6 @@ void Widget::on_test_start_move_clicked()
         qInfo().noquote() << "[ACQ_TRACE][Motion] 运动线程结束，投递UI停止回调";
         QMetaObject::invokeMethod(this,[=](){
             xunhuantimer->stop();
-            xunhuanpausetime=QTime::currentTime();
             m_recycleMoveNum=0;
             on_test_stop2_clicked();
         },Qt::QueuedConnection);
@@ -4310,9 +4287,8 @@ void Widget::on_change_test_num_clicked()
     allrecyclenum=(a6).toInt();
     qDebug()<<"a6"<<a6;
     ui->above_all_num->setText(a6);
-    oldtime=readTestTime();
-    ui->above_time->setText(oldtime);
-    xunhuanpausetime = QTime();
+    accumulatedTestMilliseconds = parseTestDurationMilliseconds(readTestTime());
+    ui->above_time->setText(formatTestDuration(accumulatedTestMilliseconds));
 }
 
 QString Widget::getTestDataFolderPath() {
@@ -4447,22 +4423,71 @@ QString Widget::readTestNum() {
     return "0";
 }
 
-QTime Widget::parseSavedTime(const QString &timeStr) {
-    QStringList parts = timeStr.split('.');
-    if (parts.size() != 2) return QTime::currentTime();
+qint64 Widget::parseTestDurationMilliseconds(const QString &timeStr) const
+{
+    QString value = timeStr.trimmed();
+    if (value.isEmpty() || value == QStringLiteral("0")) {
+        return 0;
+    }
 
-    int days = parts[0].toInt();
-    QString timePart = parts[1];
+    qint64 days = 0;
+    QString timePart = value;
+    int separatorIndex = value.indexOf(QStringLiteral("天"));
+    int separatorLength = 1;
+    if (separatorIndex < 0) {
+        separatorIndex = value.indexOf(QLatin1Char('.'));
+    }
+    if (separatorIndex >= 0) {
+        bool daysOk = false;
+        days = value.left(separatorIndex).trimmed().toLongLong(&daysOk);
+        if (!daysOk || days < 0) {
+            return 0;
+        }
+        timePart = value.mid(separatorIndex + separatorLength).trimmed();
+    }
 
-    QStringList timeComponents = timePart.split(':');
-    if (timeComponents.size() != 4) return QTime::currentTime();
+    const QStringList components = timePart.split(QLatin1Char(':'));
+    if (components.size() != 3 && components.size() != 4) {
+        return 0;
+    }
 
-    int hours = timeComponents[0].toInt() + days * 24;
-    int minutes = timeComponents[1].toInt();
-    int seconds = timeComponents[2].toInt();
-    int msecs = timeComponents[3].toInt();
+    bool hoursOk = false;
+    bool minutesOk = false;
+    bool secondsOk = false;
+    bool millisecondsOk = true;
+    const qint64 hours = components[0].toLongLong(&hoursOk);
+    const qint64 minutes = components[1].toLongLong(&minutesOk);
+    const qint64 seconds = components[2].toLongLong(&secondsOk);
+    qint64 milliseconds = 0;
+    if (components.size() == 4) {
+        milliseconds = components[3].toLongLong(&millisecondsOk);
+    }
+    if (!hoursOk || !minutesOk || !secondsOk || !millisecondsOk
+            || hours < 0 || hours > 23
+            || minutes < 0 || minutes > 59
+            || seconds < 0 || seconds > 59
+            || milliseconds < 0 || milliseconds > 999) {
+        return 0;
+    }
 
-    return QTime(hours, minutes, seconds, msecs);
+    const qint64 totalSeconds = ((days * 24 + hours) * 60 + minutes) * 60 + seconds;
+    return totalSeconds * 1000 + milliseconds;
+}
+
+QString Widget::formatTestDuration(qint64 totalMilliseconds) const
+{
+    const qint64 totalSeconds = qMax<qint64>(0, totalMilliseconds) / 1000;
+    const qint64 days = totalSeconds / (24 * 60 * 60);
+    const qint64 remainingSeconds = totalSeconds % (24 * 60 * 60);
+    const qint64 hours = remainingSeconds / (60 * 60);
+    const qint64 minutes = (remainingSeconds / 60) % 60;
+    const qint64 seconds = remainingSeconds % 60;
+
+    return QStringLiteral("%1天 %2:%3:%4")
+            .arg(days)
+            .arg(hours, 2, 10, QLatin1Char('0'))
+            .arg(minutes, 2, 10, QLatin1Char('0'))
+            .arg(seconds, 2, 10, QLatin1Char('0'));
 }
 
 void Widget::saveFrameimage(int frame_num, QFrame* frame)

@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QElapsedTimer>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDesktopServices>
@@ -405,7 +406,8 @@ private:
     std::atomic<int> m_recycleMoveNum{0}; //往复运动次数
     QTimer *xunhuantimer;
     QTimer *xunhuanSaveTimer{nullptr};
-    QTime xunhuanstarttime,xunhuanpausetime;
+    QElapsedTimer xunhuanElapsedTimer;
+    qint64 accumulatedTestMilliseconds{0};
     int lastrecyclenum,allrecyclenum;//最后一次循环运动次数，累积总循环次数
     int startcyclenum;
 
@@ -415,9 +417,8 @@ private:
     QString readTestTime();
     void writeTestNum(const QString &value);
     QString readTestNum();
-    QTime parseSavedTime(const QString &timeStr);
-
-    QString oldtime;
+    qint64 parseTestDurationMilliseconds(const QString &timeStr) const;
+    QString formatTestDuration(qint64 totalMilliseconds) const;
 
     //初始化xml参数
     void init_protcet_xml();
