@@ -38,6 +38,8 @@ struct SampleFrame
     bool temperatureValid{false};
     int state0{0};
     int state1{0};
+    bool state0Valid{false};
+    bool state1Valid{false};
     int movestate0{0};
     int movestate1{0};
     double pos1{0};
@@ -204,6 +206,10 @@ private slots:
 
     void on_waterCoolingOffButton_clicked();
 
+    void on_doorLockOnButton_clicked();
+    void on_doorLockOffButton_clicked();
+    void on_safetyResetButton_clicked();
+
 
 
 
@@ -341,6 +347,9 @@ private:
     void connect_ACS();
     void setWaterCoolingEnabled(bool enabled);
     void refreshWaterCoolingStatus();
+    void setDoorLockEnabled(bool enabled);
+    bool refreshSafetyStatus();
+    bool canStartMotion();
     bool connect_NtcPtc();
 
     //鼠标事件相关参数
@@ -474,7 +483,7 @@ private:
                               double acceleration,
                               int waitTimeMilliseconds);
     void stopMotionRecording();
-    void stopTestMotion();
+    void stopTestMotion(bool haltMotion = true);
     bool motionStopRequested_;
 };
 

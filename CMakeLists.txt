@@ -60,6 +60,7 @@ add_executable(
     main/mainwindow.h
     main/widget.cpp
     main/widget.h
+    main/global.h
     main/datacollectworker.cpp
     main/datacollectworker.h
     main/ACSC.h

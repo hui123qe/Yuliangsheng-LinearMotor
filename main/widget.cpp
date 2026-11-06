@@ -6,11 +6,17 @@
 #include "ui_widget.h"
 #include "tt_tem.hpp"
 #include "DataAcquisitionService.h"
+#include "global.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QSaveFile>
 #include <QSettings>
+
+int Global::doorLockState = -1;
+int Global::lightCurtainState = -1;
+int Global::emergencyStopState = -1;
+bool Global::safetyResetRequired = false;
 
 
 AcquireThread::AcquireThread(QObject *parent)
@@ -48,8 +54,8 @@ bool AcquireThread::acquireOneFrame(SampleFrame &frame)
     frame.timeStampMs = QDateTime::currentDateTime().toMSecsSinceEpoch();
 
     //使能状态
-    acsc_GetMotorState(m_hComm,ACSC_AXIS_0,&frame.state0, NULL);
-    acsc_GetMotorState(m_hComm,ACSC_AXIS_1,&frame.state1, NULL);
+    frame.state0Valid = acsc_GetMotorState(m_hComm, ACSC_AXIS_0, &frame.state0, NULL) != 0;
+    frame.state1Valid = acsc_GetMotorState(m_hComm, ACSC_AXIS_1, &frame.state1, NULL) != 0;
 
     //位置
     acsc_GetFPosition(m_hComm,ACSC_AXIS_0,&frame.pos1,NULL);
@@ -419,8 +425,10 @@ void Widget::connect_ACS()
         ui->label_waterCoolingStatus->setText(QStringLiteral("水冷状态：读取失败"));
         ui->zsd_enable1->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->zsd_enable2->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
-        ui->test_enable_label_0->setStyleSheet("background-color: black;");
-        ui->test_enable_label_1->setStyleSheet("background-color: black;");
+        ui->test_enable_label_0->setStyleSheet("background-color: black; color: white;");
+        ui->test_enable_label_0->setText(QStringLiteral("0 轴：使能状态未知"));
+        ui->test_enable_label_1->setStyleSheet("background-color: black; color: white;");
+        ui->test_enable_label_1->setText(QStringLiteral("1 轴：使能状态未知"));
         ui->zsd_move1->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->zsd_move2->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->zsd_tem1->setStyleSheet(QString("QLabel { ""   background-color: black; ""   border-radius: %1px; """"   border: 2px solid black; ""}").arg(ui->zsd_enable1->width() / 2));
@@ -460,8 +468,10 @@ void Widget::connect_ACS()
     {
         ui->zsd_enable1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; """"   border: 2px solid gray; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->zsd_enable2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; """"   border: 2px solid gray; ""}").arg(ui->zsd_enable1->width() / 2));
-        ui->test_enable_label_0->setStyleSheet("background-color: gray;");
-        ui->test_enable_label_1->setStyleSheet("background-color: gray;");
+        ui->test_enable_label_0->setStyleSheet("background-color: gray; color: white;");
+        ui->test_enable_label_0->setText(QStringLiteral("0 轴：使能状态未知"));
+        ui->test_enable_label_1->setStyleSheet("background-color: gray; color: white;");
+        ui->test_enable_label_1->setText(QStringLiteral("1 轴：使能状态未知"));
         ui->zsd_move1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; """"   border: 2px solid gray; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->zsd_move2->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; """"   border: 2px solid gray; ""}").arg(ui->zsd_enable1->width() / 2));
         ui->zsd_tem1->setStyleSheet(QString("QLabel { ""   background-color: gray; ""   border-radius: %1px; """"   border: 2px solid gray; ""}").arg(ui->zsd_enable1->width() / 2));
@@ -1082,19 +1092,19 @@ QPushButton:pressed {
     background-color: #2c3e50;
 }
 
-QPushButton#waterCoolingOnButton {
+QPushButton#waterCoolingOnButton, QPushButton#doorLockOnButton {
     background-color: #27ae60;
 }
 
-QPushButton#waterCoolingOnButton:hover {
+QPushButton#waterCoolingOnButton:hover, QPushButton#doorLockOnButton:hover {
     background-color: #229954;
 }
 
-QPushButton#waterCoolingOffButton {
+QPushButton#waterCoolingOffButton, QPushButton#doorLockOffButton {
     background-color: #c0392b;
 }
 
-QPushButton#waterCoolingOffButton:hover {
+QPushButton#waterCoolingOffButton:hover, QPushButton#doorLockOffButton:hover {
     background-color: #a93226;
 }
 
@@ -1647,6 +1657,7 @@ void Widget::updateUI()
 
 void Widget::getinfo()
 {
+    refreshSafetyStatus();
 
     SampleFrame frame;
     bool hasData = m_acquireThread->getRingBuf()->getLatest(frame);
@@ -1723,26 +1734,42 @@ void Widget::getinfo()
     //判断各种状态
     //使能状态
 
-    if(State!=16)
+    if (!frame.state0Valid)
+    {
+        ui->zsd_enable1->setStyleSheet("QLabel { background-color: black; border-radius: 15px; border: 2px solid black; }");
+        ui->test_enable_label_0->setStyleSheet("background-color: black; color: white;");
+        ui->test_enable_label_0->setText(QStringLiteral("0 轴：使能状态未知"));
+    }
+    else if ((State & ACSC_MST_ENABLE) != 0)
     {
         ui->zsd_enable1->setStyleSheet("QLabel { background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
-        ui->test_enable_label_0->setStyleSheet("background-color: green;");
+        ui->test_enable_label_0->setStyleSheet("background-color: green; color: white;");
+        ui->test_enable_label_0->setText(QStringLiteral("0 轴：已使能"));
     }
-    else if(State==16)
+    else
     {
         ui->zsd_enable1->setStyleSheet("QLabel { background-color: gray; ""border-radius: 15px; " "border: 2px solid black; ""}");
-        ui->test_enable_label_0->setStyleSheet("background-color: gray;");
+        ui->test_enable_label_0->setStyleSheet("background-color: gray; color: white;");
+        ui->test_enable_label_0->setText(QStringLiteral("0 轴：未使能"));
     }
 
-    if(State1!=16)
+    if (!frame.state1Valid)
+    {
+        ui->zsd_enable2->setStyleSheet("QLabel { background-color: black; border-radius: 15px; border: 2px solid black; }");
+        ui->test_enable_label_1->setStyleSheet("background-color: black; color: white;");
+        ui->test_enable_label_1->setText(QStringLiteral("1 轴：使能状态未知"));
+    }
+    else if ((State1 & ACSC_MST_ENABLE) != 0)
     {
         ui->zsd_enable2->setStyleSheet("QLabel { background-color: green; ""border-radius: 15px; " "border: 2px solid black; ""}");
-        ui->test_enable_label_1->setStyleSheet("background-color: green;");
+        ui->test_enable_label_1->setStyleSheet("background-color: green; color: white;");
+        ui->test_enable_label_1->setText(QStringLiteral("1 轴：已使能"));
     }
-    else if(State1==16)
+    else
     {
         ui->zsd_enable2->setStyleSheet("QLabel { background-color: gray; ""border-radius: 15px; " "border: 2px solid black; ""}");
-        ui->test_enable_label_1->setStyleSheet("background-color: gray;");
+        ui->test_enable_label_1->setStyleSheet("background-color: gray; color: white;");
+        ui->test_enable_label_1->setText(QStringLiteral("1 轴：未使能"));
     }
 
 
@@ -2963,6 +2990,187 @@ void Widget::refreshWaterCoolingStatus()
     }
 }
 
+void Widget::on_doorLockOnButton_clicked()
+{
+    setDoorLockEnabled(true);
+}
+
+void Widget::on_doorLockOffButton_clicked()
+{
+    setDoorLockEnabled(false);
+}
+
+void Widget::setDoorLockEnabled(bool enabled)
+{
+    int value = enabled ? Global::DoorLockOn : 1 - Global::DoorLockOn;
+    t_addlog(1, enabled ? QStringLiteral("门锁：锁定") : QStringLiteral("门锁：解锁"));
+    if (!acsc_WriteInteger(hComm, ACSC_NONE,
+                           const_cast<char*>(Global::DoorLockOutput),
+                           0, 0, 0, 0, &value, nullptr)) {
+        t_addlog(2, QStringLiteral("门锁控制失败"));
+    }
+    refreshSafetyStatus();
+}
+
+bool Widget::refreshSafetyStatus()
+{
+    const auto setStatusLabel = [](QLabel* label,
+                                   const QString& text,
+                                   const QString& backgroundColor) {
+        label->setText(text);
+        label->setStyleSheet(QStringLiteral(
+            "QLabel { background-color: %1; color: white; "
+            "border-radius: 6px; padding: 4px 10px; }")
+            .arg(backgroundColor));
+    };
+    const auto readInput = [this](const char* name, int& value) {
+        if (!acsc_ReadInteger(hComm, ACSC_NONE, const_cast<char*>(name),
+                              0, 0, 0, 0, &value, nullptr)) {
+            value = -1;
+            return false;
+        }
+        return true;
+    };
+    readInput(Global::DoorLockInput, Global::doorLockState);
+    readInput(Global::LightCurtainInput, Global::lightCurtainState);
+    int hardwareEmergencyStop = 0;
+    const bool emergencyStopRead = acsc_GetSafetyInput(hComm,
+                                                       ACSC_NONE,
+                                                       ACSC_SAFETY_ES,
+                                                       &hardwareEmergencyStop,
+                                                       ACSC_SYNCHRONOUS) != 0;
+    if (emergencyStopRead) {
+        bool emergencyStopInputHigh = hardwareEmergencyStop != 0;
+        if (Global::EmergencyStopInputInverted) {
+            emergencyStopInputHigh = !emergencyStopInputHigh;
+        }
+        Global::emergencyStopState = emergencyStopInputHigh ? 1 : 0;
+    } else {
+        Global::emergencyStopState = -1;
+    }
+    if (Global::doorLockState < 0) {
+        setStatusLabel(ui->label_doorLockStatus,
+                       QStringLiteral("门锁：读取失败"),
+                       QStringLiteral("#5d6d7e"));
+    } else if (Global::doorLockState == Global::InputNormal) {
+        setStatusLabel(ui->label_doorLockStatus,
+                       QStringLiteral("门锁：已锁定"),
+                       QStringLiteral("#27ae60"));
+    } else {
+        setStatusLabel(ui->label_doorLockStatus,
+                       QStringLiteral("门锁：已解锁"),
+                       QStringLiteral("#c0392b"));
+    }
+
+    if (Global::lightCurtainState < 0) {
+        setStatusLabel(ui->label_lightCurtainStatus,
+                       QStringLiteral("光幕：读取失败"),
+                       QStringLiteral("#5d6d7e"));
+    } else if (Global::lightCurtainState == Global::InputNormal) {
+        setStatusLabel(ui->label_lightCurtainStatus,
+                       QStringLiteral("光幕：正常"),
+                       QStringLiteral("#27ae60"));
+    } else {
+        setStatusLabel(ui->label_lightCurtainStatus,
+                       QStringLiteral("光幕：遮挡"),
+                       QStringLiteral("#c0392b"));
+    }
+
+    const bool emergencyStopTriggered = emergencyStopRead
+            && Global::emergencyStopState != Global::InputNormal;
+    if ((!emergencyStopRead || emergencyStopTriggered)
+            && !Global::safetyResetRequired) {
+        Global::safetyResetRequired = true;
+        t_addlog(2, emergencyStopRead
+                 ? QStringLiteral("硬件急停触发，需复位后才能重新开始")
+                 : QStringLiteral("硬件急停输入读取失败，禁止启动"));
+        if (future.isRunning() || acquisitionService_->isCollecting()
+                || xunhuantimer->isActive()) {
+            // 控制器安全回路负责 KILL；这里只结束上位机流程并恢复待机界面。
+            stopTestMotion(false);
+        }
+    }
+    if (!emergencyStopRead) {
+        setStatusLabel(ui->label_safetyCircuitStatus,
+                       QStringLiteral("急停：读取失败"),
+                       QStringLiteral("#5d6d7e"));
+    } else if (emergencyStopTriggered) {
+        setStatusLabel(ui->label_safetyCircuitStatus,
+                       QStringLiteral("急停：触发，待复位"),
+                       QStringLiteral("#c0392b"));
+    } else if (Global::safetyResetRequired) {
+        setStatusLabel(ui->label_safetyCircuitStatus,
+                       QStringLiteral("急停：正常，待复位"),
+                       QStringLiteral("#d68910"));
+    } else {
+        setStatusLabel(ui->label_safetyCircuitStatus,
+                       QStringLiteral("急停：正常"),
+                       QStringLiteral("#27ae60"));
+    }
+    return emergencyStopRead;
+}
+
+bool Widget::canStartMotion()
+{
+    if (!refreshSafetyStatus()) {
+        QMessageBox::warning(this, QStringLiteral("提示"),
+                             QStringLiteral("硬件急停输入读取失败，禁止启动"));
+        return false;
+    }
+    if (!Global::safetyResetRequired) {
+        return true;
+    }
+    QMessageBox::warning(this, QStringLiteral("提示"),
+                         QStringLiteral("硬件急停已触发，请先复位"));
+    return false;
+}
+
+void Widget::on_safetyResetButton_clicked()
+{
+    if (!refreshSafetyStatus()
+            || Global::emergencyStopState != Global::InputNormal) {
+        QMessageBox::warning(this, QStringLiteral("提示"),
+                             QStringLiteral("硬件急停未恢复，无法复位"));
+        return;
+    }
+    if (future.isRunning() || acquisitionService_->isCollecting()) {
+        QMessageBox::warning(this, QStringLiteral("提示"),
+                             QStringLiteral("请等待运动和数据保存结束后复位"));
+        return;
+    }
+    Global::safetyResetRequired = true;
+    t_addlog(1, QStringLiteral("复位：执行 KILL，重启所有配置的 buffer"));
+    bool ok = acsc_KillAll(hComm, nullptr) != 0;
+    for (int buffer : Global::Buffers) {
+        if (!acsc_StopBuffer(hComm, buffer, nullptr)) {
+            ok = false;
+        }
+    }
+    if (ok) {
+        for (int buffer : Global::Buffers) {
+            if (!acsc_RunBuffer(hComm, buffer, nullptr, nullptr)) {
+                ok = false;
+                break;
+            }
+        }
+    }
+    if (!ok) {
+        t_addlog(2, QStringLiteral("复位失败，保持待复位状态"));
+        return;
+    }
+    if (!refreshSafetyStatus()
+            || Global::emergencyStopState != Global::InputNormal) {
+        t_addlog(2, QStringLiteral("硬件急停未恢复，保持待复位状态"));
+        return;
+    }
+    Global::safetyResetRequired = false;
+    ui->label_safetyCircuitStatus->setText(QStringLiteral("急停：正常"));
+    ui->label_safetyCircuitStatus->setStyleSheet(QStringLiteral(
+        "QLabel { background-color: #27ae60; color: white; "
+        "border-radius: 6px; padding: 4px 10px; }"));
+    t_addlog(1, QStringLiteral("复位完成"));
+}
+
 void Widget::on_comboBox_currentIndexChanged(int index)
 {
     if(index==0)
@@ -3145,7 +3353,7 @@ void Widget::stopMotionRecording()
     }
 }
 
-void Widget::stopTestMotion()
+void Widget::stopTestMotion(bool haltMotion)
 {
     if (motionStopRequested_) {
         t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 忽略重复停止请求"));
@@ -3158,17 +3366,19 @@ void Widget::stopTestMotion()
     ui->test_start_move->setEnabled(true);
     xunhuantimer->stop();
     xunhuanSaveTimer->stop();
-    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 准备调用ACS Halt，axis=%1")
-                    .arg(final_axis));
-    int haltResult = 0;
-    if (final_axis == 2) {
-        int axes[] = {ACSC_AXIS_0, ACSC_AXIS_1, -1};
-        haltResult = acsc_HaltM(hComm, axes, nullptr);
-    } else {
-        haltResult = acsc_Halt(hComm, final_axis, nullptr);
+    if (haltMotion) {
+        t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 准备调用ACS Halt，axis=%1")
+                        .arg(final_axis));
+        int haltResult = 0;
+        if (final_axis == 2) {
+            int axes[] = {ACSC_AXIS_0, ACSC_AXIS_1, -1};
+            haltResult = acsc_HaltM(hComm, axes, nullptr);
+        } else {
+            haltResult = acsc_Halt(hComm, final_axis, nullptr);
+        }
+        t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] ACS Halt返回，result=%1")
+                        .arg(haltResult));
     }
-    t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] ACS Halt返回，result=%1")
-                    .arg(haltResult));
 
     writeTestTime(ui->above_time->text());
 
@@ -3181,6 +3391,22 @@ void Widget::stopTestMotion()
 
 void Widget::on_test_start_move_clicked()
 {
+    if (!canStartMotion()) return;
+
+    const auto isAxisEnabled = [this](int axis) {
+        int motorState = 0;
+        return acsc_GetMotorState(hComm, axis, &motorState, ACSC_SYNCHRONOUS) != 0
+                && (motorState & ACSC_MST_ENABLE) != 0;
+    };
+    const bool selectedAxesEnabled = final_axis == 2
+            ? isAxisEnabled(ACSC_AXIS_0) && isAxisEnabled(ACSC_AXIS_1)
+            : isAxisEnabled(final_axis);
+    if (!selectedAxesEnabled) {
+        QMessageBox::warning(this, QStringLiteral("提示"),
+                             QStringLiteral("所选轴未使能或状态读取失败，无法开始循环运动"));
+        return;
+    }
+
     bool ok;
     if(ui->line_test_movenum->text().contains('/'))
     {
@@ -3313,6 +3539,7 @@ void Widget::on_test_start_move_clicked()
             acsc_SetDeceleration(localHcomm,l_axis,1000 , nullptr );
         }
 
+        if (!flag.load(std::memory_order_acquire)) return;
         if(l_axis==2){
             acsc_ToPoint(localHcomm,0,0,-100,nullptr);
             acsc_ToPoint(localHcomm,0,1,-100,nullptr);
@@ -3430,6 +3657,7 @@ void Widget::on_test_stop2_clicked()
 //测试界面正向Jog
 void Widget::on_test_jog_pressed()
 {
+    if (!canStartMotion()) return;
     t_addlog(1,"正向点动");
     if(final_axis==2)
     {
@@ -3462,6 +3690,7 @@ void Widget::on_test_jog_released()
 //测试界面反向Jog
 void Widget::on_test_jog__pressed()
 {
+    if (!canStartMotion()) return;
     t_addlog(1,"负向点动");
     if(final_axis==2)
     {
@@ -3494,6 +3723,7 @@ void Widget::on_test_jog__released()
 //测试界面绝对运动
 void Widget::on_test_ptp_clicked()
 {
+    if (!canStartMotion()) return;
     t_addlog(1,"绝对运动");
     bool ok;
     double location=ui->line_test_ptp->text().toInt(&ok);
@@ -3536,6 +3766,7 @@ void Widget::on_test_ptp_clicked()
 //测试界面相对运动
 void Widget::on_test_ptpr_clicked()
 {
+    if (!canStartMotion()) return;
     t_addlog(1,"相对运动");
     bool ok;
     double location=ui->line_test_ptpr->text().toInt(&ok);
