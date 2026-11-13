@@ -306,27 +306,29 @@
        </item>
        <item>
         <widget class="QLabel" name="label_doorLockStatus">
-         <property name="font"><font><pointsize>18</pointsize></font></property>
-         <property name="styleSheet"><string notr="true">QLabel { background-color: #5d6d7e; color: white; border-radius: 6px; padding: 4px 10px; }</string></property>
+         <property name="sizePolicy"><sizepolicy hsizetype="Maximum" vsizetype="Fixed"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>
+         <property name="font"><font><pointsize>12</pointsize></font></property>
+         <property name="styleSheet"><string notr="true">QLabel { background-color: #5d6d7e; color: white; border-radius: 6px; padding: 2px 6px; }</string></property>
          <property name="text"><string>门锁：读取中</string></property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_lightCurtainStatus">
-         <property name="font"><font><pointsize>18</pointsize></font></property>
-         <property name="styleSheet"><string notr="true">QLabel { background-color: #5d6d7e; color: white; border-radius: 6px; padding: 4px 10px; }</string></property>
+         <property name="sizePolicy"><sizepolicy hsizetype="Maximum" vsizetype="Fixed"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>
+         <property name="font"><font><pointsize>12</pointsize></font></property>
+         <property name="styleSheet"><string notr="true">QLabel { background-color: #5d6d7e; color: white; border-radius: 6px; padding: 2px 6px; }</string></property>
          <property name="text"><string>光幕：读取中</string></property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_safetyCircuitStatus">
+        <widget class="QLabel" name="label_machineStatus">
          <property name="font"><font><pointsize>18</pointsize></font></property>
          <property name="styleSheet"><string notr="true">QLabel { background-color: #5d6d7e; color: white; border-radius: 6px; padding: 4px 10px; }</string></property>
-         <property name="text"><string>急停：读取中</string></property>
+         <property name="text"><string>机器状态：空闲</string></property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="safetyResetButton">
+        <widget class="QPushButton" name="machineResetButton">
          <property name="font"><font><pointsize>18</pointsize></font></property>
          <property name="text"><string>复位</string></property>
         </widget>

@@ -1,5 +1,5 @@
 #/ Controller version = 4.20
-#/ Date = 9/9/2026 8:08 AM
+#/ Date = 11/13/2026 9:32 AM
 #/ User remarks = 
 #0
 !PNAME=IO Mapping 
@@ -593,6 +593,46 @@ END
 
 
 RET
+
+#9
+!PNAME=
+!PDESC=
+
+! ===== 联锁状态（供上位机读取） =====
+GLOBAL INT g_InterlockFault
+
+! ===== 极性配置 =====
+INT SLC_OK = 1
+INT Lock_OK = 1
+
+INT Unsafe
+
+! Buffer启动时清除故障
+g_InterlockFault = 0
+
+WHILE 1
+
+    ! 检查两路光幕
+    Unsafe = (EC_DIN1.6 <> SLC_OK) | (EC_DIN1.7 <> SLC_OK)
+
+    ! 检查四路门锁
+    Unsafe = Unsafe | (EC_DIN2.0 <> Lock_OK)
+    Unsafe = Unsafe | (EC_DIN2.1 <> Lock_OK)
+    Unsafe = Unsafe | (EC_DIN2.2 <> Lock_OK)
+    Unsafe = Unsafe | (EC_DIN2.3 <> Lock_OK)
+
+    ! 首次触发联锁
+    IF Unsafe & (g_InterlockFault = 0)
+
+        g_InterlockFault = 1
+
+        HALT ALL
+
+    END
+
+    WAIT 10
+
+END
 
 #A
 !PNAME=

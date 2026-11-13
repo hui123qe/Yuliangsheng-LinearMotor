@@ -16,7 +16,6 @@
 int Global::doorLockState = -1;
 int Global::lightCurtainState = -1;
 int Global::emergencyStopState = -1;
-bool Global::safetyResetRequired = false;
 
 
 AcquireThread::AcquireThread(QObject *parent)
@@ -205,6 +204,7 @@ Widget::Widget(QWidget *parent)
       motionStopRequested_(false)
 {
     ui->setupUi(this);
+    setMachineState(MachineState::Idle);
     const QList<QWidget*> obsoleteStorageWidgets = {
         ui->frame_86, ui->frame_87,
         ui->frame_99, ui->frame_98,
@@ -1658,6 +1658,7 @@ void Widget::updateUI()
 void Widget::getinfo()
 {
     refreshSafetyStatus();
+    refreshBufferStatus();
 
     SampleFrame frame;
     bool hasData = m_acquireThread->getRingBuf()->getLatest(frame);
@@ -1987,7 +1988,6 @@ void Widget::getinfo()
                 ui->test_status4->setStyleSheet("color: red;");
                 ui->test_status4->setText("停机");
                 stopstop();
-                acsc_KillAll(hComm, nullptr);
                 return;  // 直接返回避免后续状态覆盖
             }
             // 未触发断电但存在告警
@@ -2061,7 +2061,6 @@ void Widget::getinfo()
                 ui->test_status3->setStyleSheet("color: red;");
                 ui->test_status3->setText("停机");
                 stopstop();
-                acsc_KillAll(hComm, nullptr);
                 return;  // 直接返回避免后续状态覆盖
             }
             // 未触发断电但存在告警
@@ -3003,7 +3002,7 @@ bool Widget::refreshSafetyStatus()
         label->setText(text);
         label->setStyleSheet(QStringLiteral(
             "QLabel { background-color: %1; color: white; "
-            "border-radius: 6px; padding: 4px 10px; }")
+            "border-radius: 6px; padding: 2px 6px; }")
             .arg(backgroundColor));
     };
     const auto readInput = [this](const char* name, int& value) {
@@ -3014,35 +3013,18 @@ bool Widget::refreshSafetyStatus()
         }
         return true;
     };
-    bool doorLocksRead = true;
-    bool doorLocksLocked = true;
-    for (const char* input : Global::DoorLockInputs) {
-        int value = -1;
-        if (!readInput(input, value)) {
-            doorLocksRead = false;
-        }
-        if (value != Global::DoorLockLocked) {
-            doorLocksLocked = false;
-        }
-    }
+    // 与 buffer 9 一致：两路光幕、四路门锁均为高电平正常。
+    int digitalInput1 = 0;
+    int digitalInput2 = 0;
+    const bool doorLocksRead = readInput("EC_DIN2", digitalInput2);
+    const bool doorLocksLocked = (digitalInput2 & 0x0f) == 0x0f;
     Global::doorLockState = !doorLocksRead ? -1
             : (doorLocksLocked ? Global::InputNormal : 1 - Global::InputNormal);
-    bool lightCurtainsRead = true;
-    bool lightCurtainsNormal = true;
-    for (const char* input : Global::LightCurtainInputs) {
-        int value = -1;
-        if (!readInput(input, value)) {
-            lightCurtainsRead = false;
-        }
-        if (value != Global::LightCurtainNormal) {
-            lightCurtainsNormal = false;
-        }
-    }
+    const bool lightCurtainsRead = readInput("EC_DIN1", digitalInput1);
+    const bool lightCurtainsNormal = (digitalInput1 & 0xc0) == 0xc0;
     Global::lightCurtainState = !lightCurtainsRead ? -1
             : (lightCurtainsNormal ? Global::InputNormal : 1 - Global::InputNormal);
-    if (Global::doorLockState == 0 || Global::lightCurtainState == 0) {
-        acsc_KillAll(hComm, ACSC_SYNCHRONOUS);
-    }
+    readInput("g_InterlockFault", interlockFault_);
 
     int hardwareEmergencyStop = 0;
     const bool emergencyStopRead = acsc_GetSafetyInput(hComm,
@@ -3089,36 +3071,48 @@ bool Widget::refreshSafetyStatus()
 
     const bool emergencyStopTriggered = emergencyStopRead
             && Global::emergencyStopState != Global::InputNormal;
-    if ((!emergencyStopRead || emergencyStopTriggered)
-            && !Global::safetyResetRequired) {
-        Global::safetyResetRequired = true;
-        t_addlog(2, emergencyStopRead
+    const bool doorOrLightTriggered = interlockFault_ != 0;
+    if ((!emergencyStopRead || emergencyStopTriggered || doorOrLightTriggered)
+            && machineState_ != MachineState::Fault) {
+        setMachineState(MachineState::Fault);
+        t_addlog(2, doorOrLightTriggered
+                 ? (interlockFault_ < 0
+                    ? QStringLiteral("buffer 9 联锁状态读取失败，禁止启动")
+                    : QStringLiteral("buffer 9 联锁触发，需复位后才能重新开始"))
+                 : emergencyStopRead
                  ? QStringLiteral("硬件急停触发，需复位后才能重新开始")
                  : QStringLiteral("硬件急停输入读取失败，禁止启动"));
         if (future.isRunning() || acquisitionService_->isCollecting()
                 || xunhuantimer->isActive()) {
-            // 控制器安全回路负责 KILL；这里只结束上位机流程并恢复待机界面。
+            // 下位机负责停止动作，上位机只结束运动和采集流程。
             stopTestMotion(false);
         }
     }
-    if (!emergencyStopRead) {
-        setStatusLabel(ui->label_safetyCircuitStatus,
-                       QStringLiteral("急停：读取失败"),
-                       QStringLiteral("#5d6d7e"));
-    } else if (emergencyStopTriggered) {
-        setStatusLabel(ui->label_safetyCircuitStatus,
-                       QStringLiteral("急停：触发，待复位"),
-                       QStringLiteral("#c0392b"));
-    } else if (Global::safetyResetRequired) {
-        setStatusLabel(ui->label_safetyCircuitStatus,
-                       QStringLiteral("急停：正常，待复位"),
-                       QStringLiteral("#d68910"));
-    } else {
-        setStatusLabel(ui->label_safetyCircuitStatus,
-                       QStringLiteral("急停：正常"),
-                       QStringLiteral("#27ae60"));
-    }
     return emergencyStopRead;
+}
+
+bool Widget::refreshBufferStatus()
+{
+    for (int buffer : Global::Buffers) {
+        int state = 0;
+        int error = 0;
+        const bool stateRead = acsc_GetProgramState(hComm, buffer, &state,
+                                                   ACSC_SYNCHRONOUS) != 0;
+        const bool errorRead = acsc_GetProgramError(hComm, buffer, &error,
+                                                   ACSC_SYNCHRONOUS) != 0;
+        if (!stateRead || !errorRead || error != 0
+                || !(state & ACSC_PST_RUN) || (state & ACSC_PST_SUSPEND)) {
+            if (machineState_ != MachineState::Fault) {
+                setMachineState(MachineState::Fault);
+                t_addlog(2, QStringLiteral("buffer %1 异常或未运行：状态=%2，错误=%3，读取成功=%4")
+                         .arg(buffer).arg(state).arg(error).arg(stateRead && errorRead));
+                // 不向控制器发送 KILL 或 Halt。
+                stopTestMotion(false);
+            }
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Widget::canStartMotion()
@@ -3128,16 +3122,21 @@ bool Widget::canStartMotion()
                              QStringLiteral("硬件急停输入读取失败，禁止启动"));
         return false;
     }
-    if (!Global::safetyResetRequired) {
+    refreshBufferStatus();
+    if (machineState_ != MachineState::Fault) {
         return true;
     }
     QMessageBox::warning(this, QStringLiteral("提示"),
-                         QStringLiteral("硬件急停已触发，请先复位"));
+                         QStringLiteral("机器处于故障状态，请先复位"));
     return false;
 }
 
-void Widget::on_safetyResetButton_clicked()
+void Widget::on_machineResetButton_clicked()
 {
+    if (machineState_ != MachineState::Fault) {
+        return;
+    }
+
     if (!refreshSafetyStatus()
             || Global::emergencyStopState != Global::InputNormal) {
         QMessageBox::warning(this, QStringLiteral("提示"),
@@ -3149,9 +3148,8 @@ void Widget::on_safetyResetButton_clicked()
                              QStringLiteral("请等待运动和数据保存结束后复位"));
         return;
     }
-    Global::safetyResetRequired = true;
-    t_addlog(1, QStringLiteral("复位：执行 KILL，重启所有配置的 buffer"));
-    bool ok = acsc_KillAll(hComm, nullptr) != 0;
+    t_addlog(1, QStringLiteral("复位：停止并重启 IO、限位、DC 和联锁 buffer（0、1、2、9）"));
+    bool ok = true;
     for (int buffer : Global::Buffers) {
         if (!acsc_StopBuffer(hComm, buffer, nullptr)) {
             ok = false;
@@ -3174,11 +3172,17 @@ void Widget::on_safetyResetButton_clicked()
         t_addlog(2, QStringLiteral("硬件急停未恢复，保持待复位状态"));
         return;
     }
-    Global::safetyResetRequired = false;
-    ui->label_safetyCircuitStatus->setText(QStringLiteral("急停：正常"));
-    ui->label_safetyCircuitStatus->setStyleSheet(QStringLiteral(
-        "QLabel { background-color: #27ae60; color: white; "
-        "border-radius: 6px; padding: 4px 10px; }"));
+    if (interlockFault_ != 0
+            || Global::doorLockState != Global::InputNormal
+            || Global::lightCurtainState != Global::InputNormal) {
+        t_addlog(2, QStringLiteral("门锁、光幕或 buffer 9 联锁状态未恢复，保持故障状态"));
+        return;
+    }
+    if (!refreshBufferStatus()) {
+        t_addlog(2, QStringLiteral("buffer 未恢复正常运行，保持故障状态"));
+        return;
+    }
+    setMachineState(MachineState::Idle);
     t_addlog(1, QStringLiteral("复位完成"));
 }
 
@@ -3200,20 +3204,41 @@ void Widget::on_comboBox_currentIndexChanged(int index)
 void Widget::on_start_stop_clicked()
 {
     t_addlog(1,"急停");
-    stopMotionRecording();
-    flag.store(false, std::memory_order_release);
-    m_recycleMoveNum=0;
-    future.cancel();
-    acsc_KillAll(hComm, NULL);
+    stopstop();
 }
 
 void Widget::stopstop()
 {
-    stopMotionRecording();
+    setMachineState(MachineState::Fault);
     flag.store(false, std::memory_order_release);
-    m_recycleMoveNum=0;
     future.cancel();
     acsc_KillAll(hComm, NULL);
+    stopTestMotion(false);
+}
+
+void Widget::setMachineState(MachineState state)
+{
+    machineState_ = state;
+    QString text;
+    QString color;
+    switch (state) {
+    case MachineState::Fault:
+        text = QStringLiteral("机器状态：故障");
+        color = QStringLiteral("#c0392b");
+        break;
+    case MachineState::Idle:
+        text = QStringLiteral("机器状态：空闲");
+        color = QStringLiteral("#5d6d7e");
+        break;
+    case MachineState::Running:
+        text = QStringLiteral("机器状态：运行中");
+        color = QStringLiteral("#27ae60");
+        break;
+    }
+    ui->label_machineStatus->setText(text);
+    ui->label_machineStatus->setStyleSheet(QStringLiteral(
+        "QLabel { background-color: %1; color: white; "
+        "border-radius: 6px; padding: 4px 10px; }").arg(color));
 }
 
 //测试界面设置
@@ -3366,6 +3391,10 @@ void Widget::stopMotionRecording()
 
 void Widget::stopTestMotion(bool haltMotion)
 {
+    // 普通停止和循环结束不能清除已经锁存的故障。
+    if (machineState_ != MachineState::Fault) {
+        setMachineState(MachineState::Idle);
+    }
     if (motionStopRequested_) {
         t_addlog(1, QStringLiteral("[ACQ_TRACE][UI] 忽略重复停止请求"));
         return;
@@ -3527,6 +3556,7 @@ void Widget::on_test_start_move_clicked()
         xunhuanSaveTimer->start();
     }
     motionStopRequested_ = false;
+    setMachineState(MachineState::Running);
     flag.store(true, std::memory_order_release);
 
     auto func=[=](){

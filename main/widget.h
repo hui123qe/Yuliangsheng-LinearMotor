@@ -209,7 +209,7 @@ private slots:
 
     void on_doorLockOnButton_clicked();
     void on_doorLockOffButton_clicked();
-    void on_safetyResetButton_clicked();
+    void on_machineResetButton_clicked();
 
 
 
@@ -350,7 +350,12 @@ private:
     void refreshWaterCoolingStatus();
     void setDoorLockEnabled(bool enabled);
     bool refreshSafetyStatus();
+    int interlockFault_ = -1;
+    bool refreshBufferStatus();
     bool canStartMotion();
+    enum class MachineState { Fault, Idle, Running };
+    MachineState machineState_ = MachineState::Idle;
+    void setMachineState(MachineState state);
     bool connect_NtcPtc();
 
     //鼠标事件相关参数
