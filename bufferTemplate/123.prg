@@ -1,52 +1,17 @@
-#/ Controller version = 4.20
-#/ Date = 11/13/2026 9:32 AM
+#/ Controller version = 4.00
+#/ Date = 11/15/2026 12:02 PM
 #/ User remarks = 
 #0
 !PNAME=IO Mapping 
 !PDESC=
 AUTOEXEC:
 
-while 1
+
 ! 数字量输出
 ECOUT(134,EC_DOUT1)
 ECOUT(135,EC_DOUT2)
-EC_DOUT1.0=Value_OUT1! 水冷进水电磁阀
-EC_DOUT1.1=Value_OUT2! 水冷水电磁阀
-EC_DOUT1.2=Red_OUT! 三色灯红输出
-EC_DOUT1.3=Yellow_OUT! 三色灯黄输出
-EC_DOUT1.4=Green_OUT! 三色灯绿输出
-EC_DOUT1.5=Buzzer_OUT! 蜂鸣器输出
-EC_DOUT1.6=NC_DOUT1! 预留
-EC_DOUT1.7=NC_DOUT2! 预留
-EC_DOUT2.0=NC_DOUT3! 预留
-EC_DOUT2.1=NC_DOUT4! 预留
-EC_DOUT2.2=NC_DOUT5! 预留
-EC_DOUT2.3=NC_DOUT6! 预留
-EC_DOUT2.4=NC_DOUT7! 预留
-EC_DOUT2.5=NC_DOUT8! 预留
-EC_DOUT2.6=NC_DOUT9! 预留
-EC_DOUT2.7=NC_DOUT10! 预留
-
-! 数字量输入
 ECIN(180,EC_DIN1)
 ECIN(181,EC_DIN2)
-PRV_IN=EC_DIN1.0! 总进气压力开关
-X1_LimitP=EC_DIN1.1! X1正限位
-X1_LimitN=EC_DIN1.2! X1负限位
-X2_LimitP=EC_DIN1.4! X2正限位
-X2_LimitN=EC_DIN1.3! X2负限位
-NC_DIN1=EC_DIN1.5! 预留
-NC_DIN2=EC_DIN1.6! 预留
-NC_DIN3=EC_DIN1.7! 预留
-NC_DIN4=EC_DIN2.0! 预留
-NC_DIN5=EC_DIN2.1! 预留
-NC_DIN6=EC_DIN2.2! 预留
-NC_DIN7=EC_DIN2.3! 预留
-NC_DIN8=EC_DIN2.4! 预留
-NC_DIN9=EC_DIN2.5! 预留
-NC_DIN10=EC_DIN2.6! 预留
-NC_DIN11=EC_DIN2.7! 预留
-
 !模拟量输入
 ECIN(162,EC_AIN1)! 总进气流量传感器，流量传感器3，3008第4输入口
 ECIN(178,EC_AIN2)! 总进气压力传感器，压力传感器5，3008第8输入口
@@ -57,31 +22,18 @@ ECIN(158,EC_AIN6)! X2水冷流量传感器，流量传感器2，3008第3输入�
 ECIN(170,EC_AIN7)! X2水冷进水压力传感器，压力传感器3，3008第6输入口
 ECIN(154,EC_AIN8)! X2水冷出水压力传感器，压力传感器4，3008第2输入口
 
-Main_Flow=EC_AIN1/32767*600! 总进气流量值，单位L/min
-Main_Pressure=(EC_AIN2/32767*10-1)*0.25! 总进气压力值，单位MPa
-X1_Flow=(EC_AIN3/32767*10-1)*10! X1水冷流量值，单位L/min
-X1_Pressure1=(EC_AIN4/32767*10-1)*0.25! X1水冷进水压力值，单位MPa
-X1_Pressure2=(EC_AIN5/32767*10-1)*0.25! X1水冷出水压力值，单位MPa
-X2_Flow=(EC_AIN6/32767*10-1)*10! X2水冷流量值，单位L/min
-X2_Pressure1=(EC_AIN7/32767*10-1)*0.25! X2水冷进水压力值，单位MPa
-X2_Pressure2=(EC_AIN8/32767*10-1)*0.25! X2水冷出水压力值，单位MPa
-
-CurrentX1=COEREAD/2(0,0X6077,0)/1000*61.509
-CurrentX2=COEREAD/2(1,0X6077,0)/1000*61.509
-
-end
-STOP
+STOP!
 #1
 !PNAME=Limit
 !PDESC=
 AUTOEXEC:
 
 while 1
-IF X1_LimitP=0 | X1_LimitN=0 
+IF (X1_LimitP=0 & RVEL(0)>0)|(X1_LimitN=0 & RVEL(0)<0)
 KILL 0
 end
 
-IF X2_LimitP=0 | X2_LimitN=0
+IF (X2_LimitP=0 & RVEL(1)>0)|(X2_LimitN=0 & RVEL(1)<0)
 KILL 1
 end
 end
@@ -594,8 +546,71 @@ END
 
 RET
 
+#3
+!PNAME=SIGNAL_GET
+!PDESC=
+AUTOEXEC:
+
+while 1
+! 数字量输出
+BLOCK
+EC_DOUT1.0=Value_OUT1! 水冷进水电磁阀
+EC_DOUT1.1=Value_OUT2! 水冷水电磁阀
+EC_DOUT1.2=Red_OUT! 三色灯红输出
+EC_DOUT1.3=Yellow_OUT! 三色灯黄输出
+EC_DOUT1.4=Green_OUT! 三色灯绿输出
+EC_DOUT1.5=Buzzer_OUT! 蜂鸣器输出
+EC_DOUT1.6=Lock1_OUT! 安全门锁1线圈
+EC_DOUT1.7=Lock2_OUT! 安全门锁2线圈
+EC_DOUT2.0=Lock3_OUT! 安全门锁3线圈
+EC_DOUT2.1=Lock4_OUT! 安全门锁4线圈
+EC_DOUT2.2=NC_DOUT5! 预留
+EC_DOUT2.3=NC_DOUT6! 预留
+EC_DOUT2.4=NC_DOUT7! 预留
+EC_DOUT2.5=NC_DOUT8! 预留
+EC_DOUT2.6=NC_DOUT9! 预留
+EC_DOUT2.7=NC_DOUT10! 预留
+
+! 数字量输入
+PRV_IN=EC_DIN1.0! 总进气压力开关
+X1_LimitP=EC_DIN1.1! X1正限位
+X1_LimitN=EC_DIN1.2! X1负限位
+X2_LimitP=EC_DIN1.4! X2正限位
+X2_LimitN=EC_DIN1.3! X2负限位
+NC_DIN1=EC_DIN1.5! 预留
+SLC1_IN=EC_DIN1.6! 安全光栅1信号
+SLC2_IN=EC_DIN1.7! 安全光栅2信号
+LockOff1_IN=EC_DIN2.0! 安全门锁1失电关门信号
+LockOff2_IN=EC_DIN2.1! 安全门锁2失电关门信号
+LockOff3_IN=EC_DIN2.2! 安全门锁3失电关门信号
+LockOff4_IN=EC_DIN2.3! 安全门锁4失电关门信号
+LockOn1_IN=EC_DIN2.4! 安全门锁1得电关门信号
+LockOn2_IN=EC_DIN2.5! 安全门锁2得电关门信号
+LockOn3_IN=EC_DIN2.6! 安全门锁3得电关门信号
+LockOn4_IN=EC_DIN2.7! 安全门锁4得电关门信号
+
+!模拟量输入
+
+Main_Flow=EC_AIN1/32767*600! 总进气流量值，单位L/min
+Main_Pressure=(EC_AIN2/32767*10-1)*0.25! 总进气压力值，单位MPa
+X1_Flow=(EC_AIN3/32767*10-1)*10! X1水冷流量值，单位L/min
+X1_Pressure1=(EC_AIN4/32767*10-1)*0.25! X1水冷进水压力值，单位MPa
+X1_Pressure2=(EC_AIN5/32767*10-1)*0.25! X1水冷出水压力值，单位MPa
+X2_Flow=(EC_AIN6/32767*10-1)*10! X2水冷流量值，单位L/min
+X2_Pressure1=(EC_AIN7/32767*10-1)*0.25! X2水冷进水压力值，单位MPa
+X2_Pressure2=(EC_AIN8/32767*10-1)*0.25! X2水冷出水压力值，单位MPa
+
+CurrentX1=COEREAD/2(0,0X6077,0)/1000*61.509
+CurrentX2=COEREAD/2(1,0X6077,0)/1000*61.509
+
+FeedAcc0=FACC(0)
+FeedAcc1=FACC(1)
+
+end
+end
+STOP
 #9
-!PNAME=
+!PNAME=safety
 !PDESC=
 
 ! ===== 联锁状态（供上位机读取） =====
@@ -647,6 +662,12 @@ global int Value_OUT1,Value_OUT2,Red_OUT,Yellow_OUT,Green_OUT,Buzzer_OUT,NC_DOUT
 global int PRV_IN,X1_LimitP,X1_LimitN,X2_LimitN,X2_LimitP,NC_DIN1,NC_DIN2,NC_DIN3,NC_DIN4,NC_DIN5,NC_DIN6,NC_DIN7,NC_DIN8,NC_DIN9,NC_DIN10,NC_DIN11! 数字量输入变量定义
 global real Main_Flow,Main_Pressure,X1_Flow,X1_Pressure1,X1_Pressure2,X2_Flow,X2_Pressure1,X2_Pressure2! 模拟量输入变量定义
 global real CurrentX1,CurrentX2
+global real FeedAcc0,FeedAcc1
+GLOBAL INT Lock1_OUT,Lock2_OUT,Lock3_OUT,Lock4_OUT
+GLOBAL INT SLC1_IN,SLC2_IN
+GLOBAL INT LockOff1_IN,LockOff2_IN,LockOff3_IN,LockOff4_IN
+GLOBAL INT LockOn1_IN,LockOn2_IN,LockOn3_IN,LockOn4_IN
+
 
 
 !============================================================

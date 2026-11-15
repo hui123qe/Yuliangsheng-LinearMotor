@@ -11,7 +11,7 @@ constexpr int InputNormal = 1;
 // 现场急停接线电平相反时改为 true。
 constexpr bool EmergencyStopInputInverted = true;
 // bufferTemplate/123.prg：0=IO，1=限位/KILL，2=DC采集服务，9=门锁/光幕联锁。
-constexpr int Buffers[] = {0, 1, 2, 9};
+constexpr int Buffers[] = {3, 1, 2, 9};
 
 extern int doorLockState;
 extern int lightCurtainState;

@@ -3172,9 +3172,7 @@ void Widget::on_machineResetButton_clicked()
         t_addlog(2, QStringLiteral("硬件急停未恢复，保持待复位状态"));
         return;
     }
-    if (interlockFault_ != 0
-            || Global::doorLockState != Global::InputNormal
-            || Global::lightCurtainState != Global::InputNormal) {
+    if (interlockFault_ != 0) {
         t_addlog(2, QStringLiteral("门锁、光幕或 buffer 9 联锁状态未恢复，保持故障状态"));
         return;
     }
