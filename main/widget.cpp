@@ -204,6 +204,8 @@ Widget::Widget(QWidget *parent)
       motionStopRequested_(false)
 {
     ui->setupUi(this);
+    connect(ui->pushButton_2, &QPushButton::clicked,
+            this, &Widget::on_test_clear_error_clicked);
     setMachineState(MachineState::Idle);
     const QList<QWidget*> obsoleteStorageWidgets = {
         ui->frame_86, ui->frame_87,
