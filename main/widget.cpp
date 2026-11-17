@@ -3027,6 +3027,21 @@ bool Widget::refreshSafetyStatus()
             : (lightCurtainsNormal ? Global::InputNormal : 1 - Global::InputNormal);
     readInput("g_InterlockFault", interlockFault_);
 
+    driveFaultActive_ = false;
+    QString driveFaultReason;
+    for (int axis : {ACSC_AXIS_0, ACSC_AXIS_1}) {
+        int driveFault = 0;
+        const bool driveFaultRead = acsc_GetSafetyInput(
+                    hComm, axis, ACSC_SAFETY_DRIVE, &driveFault,
+                    ACSC_SYNCHRONOUS) != 0;
+        if (!driveFaultRead || driveFault != 0) {
+            driveFaultActive_ = true;
+            driveFaultReason += driveFaultRead
+                    ? QStringLiteral("轴 %1 驱动故障触发；").arg(axis)
+                    : QStringLiteral("轴 %1 驱动故障输入读取失败；").arg(axis);
+        }
+    }
+
     int hardwareEmergencyStop = 0;
     const bool emergencyStopRead = acsc_GetSafetyInput(hComm,
                                                        ACSC_NONE,
@@ -3073,10 +3088,13 @@ bool Widget::refreshSafetyStatus()
     const bool emergencyStopTriggered = emergencyStopRead
             && Global::emergencyStopState != Global::InputNormal;
     const bool doorOrLightTriggered = interlockFault_ != 0;
-    if ((!emergencyStopRead || emergencyStopTriggered || doorOrLightTriggered)
+    if ((!emergencyStopRead || emergencyStopTriggered || doorOrLightTriggered
+         || driveFaultActive_)
             && machineState_ != MachineState::Fault) {
         setMachineState(MachineState::Fault);
-        t_addlog(2, doorOrLightTriggered
+        t_addlog(2, driveFaultActive_
+                 ? driveFaultReason + QStringLiteral("禁止启动，需故障恢复后复位")
+                 : doorOrLightTriggered
                  ? (interlockFault_ < 0
                     ? QStringLiteral("buffer 9 联锁状态读取失败，禁止启动")
                     : QStringLiteral("buffer 9 联锁触发，需复位后才能重新开始"))
@@ -3175,6 +3193,10 @@ void Widget::on_machineResetButton_clicked()
     }
     if (interlockFault_ != 0) {
         t_addlog(2, QStringLiteral("门锁、光幕或 buffer 9 联锁状态未恢复，保持故障状态"));
+        return;
+    }
+    if (driveFaultActive_) {
+        t_addlog(2, QStringLiteral("驱动故障未恢复或输入读取失败，保持故障状态"));
         return;
     }
     if (!refreshBufferStatus()) {

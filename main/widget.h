@@ -351,6 +351,7 @@ private:
     void setDoorLockEnabled(bool enabled);
     bool refreshSafetyStatus();
     int interlockFault_ = -1;
+    bool driveFaultActive_ = true;
     bool refreshBufferStatus();
     bool canStartMotion();
     enum class MachineState { Fault, Idle, Running };
