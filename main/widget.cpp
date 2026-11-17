@@ -3712,9 +3712,8 @@ void Widget::on_test_jog_pressed()
     {
         double Velocity;
         acsc_GetVelocity(hComm,0,&Velocity, NULL );
-        int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1, -1 };
-        int Directions[] = { ACSC_POSITIVE_DIRECTION, ACSC_NEGATIVE_DIRECTION};
-        acsc_JogM(hComm,0,Axes,Directions,Velocity,NULL);
+        acsc_Jog(hComm,0,ACSC_AXIS_0,Velocity,NULL);
+        acsc_Jog(hComm,0,ACSC_AXIS_1,Velocity,NULL);
     }else if(final_axis==0){
         double Velocity;
         acsc_GetVelocity(hComm,final_axis,&Velocity, NULL );
@@ -3722,7 +3721,7 @@ void Widget::on_test_jog_pressed()
     }else if(final_axis==1){
         double Velocity;
         acsc_GetVelocity(hComm,final_axis,&Velocity, NULL );
-        acsc_Jog(hComm,0,final_axis,-Velocity,NULL);
+        acsc_Jog(hComm,0,final_axis,Velocity,NULL);
     }
 }
 
@@ -3745,9 +3744,8 @@ void Widget::on_test_jog__pressed()
     {
         double Velocity;
         acsc_GetVelocity(hComm,0,&Velocity, NULL );
-        int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1, -1 };
-        int Directions[] = { ACSC_NEGATIVE_DIRECTION, ACSC_POSITIVE_DIRECTION};
-        acsc_JogM(hComm,0,Axes,Directions,Velocity,NULL);
+        acsc_Jog(hComm,0,ACSC_AXIS_0,-Velocity,NULL);
+        acsc_Jog(hComm,0,ACSC_AXIS_1,-Velocity,NULL);
     }else if(final_axis==0){
         double Velocity;
         acsc_GetVelocity(hComm,final_axis,&Velocity, NULL );
@@ -3755,7 +3753,7 @@ void Widget::on_test_jog__pressed()
     }else if(final_axis==1){
         double Velocity;
         acsc_GetVelocity(hComm,final_axis,&Velocity, NULL );
-        acsc_Jog(hComm,0,final_axis,Velocity,NULL);
+        acsc_Jog(hComm,0,final_axis,-Velocity,NULL);
     }
 }
 
@@ -3781,7 +3779,6 @@ void Widget::on_test_ptp_clicked()
         QMessageBox::warning(this,"非法输入","请输入正确的绝对运行目标位置");
         return;
     }
-    location=-(location+100);
     int max=ui->line_set_prot_movemax->text().toInt(&ok);
     if(!ok)
     {
@@ -3801,10 +3798,8 @@ void Widget::on_test_ptp_clicked()
     }
     if(final_axis==2)
     {
-        int Axes[] = { ACSC_AXIS_0, ACSC_AXIS_1,-1};
-        double Points[] = {location, location};
-        acsc_ToPointM(hComm,0,Axes,Points,NULL );
-
+        acsc_ToPoint(hComm,0,ACSC_AXIS_0,location,NULL);
+        acsc_ToPoint(hComm,0,ACSC_AXIS_1,location,NULL);
     }else
     {
         acsc_ToPoint(hComm,0,final_axis,location,NULL);
