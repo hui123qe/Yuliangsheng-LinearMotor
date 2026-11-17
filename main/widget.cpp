@@ -3167,6 +3167,7 @@ void Widget::on_machineResetButton_clicked()
                              QStringLiteral("请等待运动和数据保存结束后复位"));
         return;
     }
+    on_test_clear_error_clicked();
     t_addlog(1, QStringLiteral("复位：停止并重启 IO、限位、DC 和联锁 buffer（0、1、2、9）"));
     bool ok = true;
     for (int buffer : Global::Buffers) {
@@ -3874,8 +3875,17 @@ void Widget::on_test_ptpr_clicked()
 void Widget::on_test_clear_error_clicked()
 {
     t_addlog(1,"清除报错");
-    int Axes[]={ACSC_AXIS_0,ACSC_AXIS_1,-1};
-    acsc_FaultClearM( hComm,Axes,NULL );
+    char command[] = "FCLEAR (0,1)\r";
+    if (!acsc_Command(hComm, command, sizeof(command) - 1, ACSC_SYNCHRONOUS)) {
+        const int error = acsc_GetLastError();
+        char errorText[256] = {};
+        int received = 0;
+        acsc_GetErrorString(hComm, error, errorText, sizeof(errorText) - 1, &received);
+        t_addlog(2, QStringLiteral("驱动器清错命令失败：错误码=%1，%2")
+                 .arg(error).arg(QString::fromLocal8Bit(errorText)));
+        return;
+    }
+    t_addlog(1, QStringLiteral("FCLEAR (0,1) 命令执行成功"));
 }
 
 //测试界面停止2
