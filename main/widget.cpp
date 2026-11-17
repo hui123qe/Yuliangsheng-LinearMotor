@@ -491,6 +491,7 @@ void Widget::connect_ACS()
         acsc_GetAcceleration( hComm, ACSC_AXIS_0, &Acceleration, NULL);
         ui->line_test_accdec->setText(QString::number(Acceleration));
         t_addlog(1,"控制器连接成功");
+        setMachineState(machineState_);
         refreshWaterCoolingStatus();
         const bool temperatureAvailable = connect_NtcPtc();
         if (!temperatureAvailable) {
@@ -3237,6 +3238,19 @@ void Widget::setMachineState(MachineState state)
     ui->label_machineStatus->setStyleSheet(QStringLiteral(
         "QLabel { background-color: %1; color: white; "
         "border-radius: 6px; padding: 4px 10px; }").arg(color));
+
+    if (hComm == ACSC_INVALID) {
+        return;
+    }
+    int red = state == MachineState::Fault ? 1 : 0;
+    int yellow = state == MachineState::Idle ? 1 : 0;
+    int green = state == MachineState::Running ? 1 : 0;
+    acsc_WriteInteger(hComm, ACSC_NONE, const_cast<char*>("Red_OUT"),
+                      0, 0, 0, 0, &red, nullptr);
+    acsc_WriteInteger(hComm, ACSC_NONE, const_cast<char*>("Yellow_OUT"),
+                      0, 0, 0, 0, &yellow, nullptr);
+    acsc_WriteInteger(hComm, ACSC_NONE, const_cast<char*>("Green_OUT"),
+                      0, 0, 0, 0, &green, nullptr);
 }
 
 //测试界面设置

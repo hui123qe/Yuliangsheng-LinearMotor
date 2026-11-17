@@ -400,7 +400,7 @@ private:
     int final_axis=2;
 
     //设备句柄
-    HANDLE hComm;
+    HANDLE hComm{ACSC_INVALID};
 
     //速度加速度减速度的设置系数
     //long double coefficient = sqrt(2.0L);
