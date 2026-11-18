@@ -1,5 +1,5 @@
 #/ Controller version = 4.00
-#/ Date = 11/15/2026 12:02 PM
+#/ Date = 11/18/2026 10:50 AM
 #/ User remarks = 
 #0
 !PNAME=IO Mapping 
@@ -72,7 +72,7 @@ STOP
 !============================================================
 ! Internal acquisition state
 !============================================================
-
+AUTOEXEC:
 INT ACQ_SESSION_ID 
 INT ACQ_CURRENT_BLOCK 
 INT ACQ_CURRENT_VALID_COUNT
@@ -610,9 +610,9 @@ end
 end
 STOP
 #9
-!PNAME=safety
+!PNAME=
 !PDESC=
-
+AUTOEXEC:
 ! ===== 联锁状态（供上位机读取） =====
 GLOBAL INT g_InterlockFault
 
