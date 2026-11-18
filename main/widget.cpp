@@ -3267,7 +3267,7 @@ void Widget::setMachineState(MachineState state)
         break;
     case MachineState::Idle:
         text = QStringLiteral("机器状态：空闲");
-        color = QStringLiteral("#5d6d7e");
+        color = QStringLiteral("#27ae60");
         break;
     case MachineState::Running:
         text = QStringLiteral("机器状态：运行中");
@@ -3283,8 +3283,8 @@ void Widget::setMachineState(MachineState state)
         return;
     }
     int red = state == MachineState::Fault ? 1 : 0;
-    int yellow = state == MachineState::Idle ? 1 : 0;
-    int green = state == MachineState::Running ? 1 : 0;
+    int yellow = 0;
+    int green = (state == MachineState::Idle || state == MachineState::Running) ? 1 : 0;
     acsc_WriteInteger(hComm, ACSC_NONE, const_cast<char*>("Red_OUT"),
                       0, 0, 0, 0, &red, nullptr);
     acsc_WriteInteger(hComm, ACSC_NONE, const_cast<char*>("Yellow_OUT"),

@@ -630,6 +630,9 @@ WHILE 1
     ! 检查两路光幕
     Unsafe = (EC_DIN1.6 <> SLC_OK) | (EC_DIN1.7 <> SLC_OK)
 
+    ! 检查总进气压力开关：1允许运行，0触发联锁
+    Unsafe = Unsafe | (EC_DIN1.0 = 0)
+
     ! 检查四路门锁
     Unsafe = Unsafe | (EC_DIN2.0 <> Lock_OK)
     Unsafe = Unsafe | (EC_DIN2.1 <> Lock_OK)
