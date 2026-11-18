@@ -3031,11 +3031,21 @@ bool Widget::refreshSafetyStatus()
 
     driveFaultActive_ = false;
     QString driveFaultReason;
+    QString driveStatusText;
+    bool driveFaultDetected = false;
     for (int axis : {ACSC_AXIS_0, ACSC_AXIS_1}) {
         int driveFault = 0;
         const bool driveFaultRead = acsc_GetSafetyInput(
                     hComm, axis, ACSC_SAFETY_DRIVE, &driveFault,
                     ACSC_SYNCHRONOUS) != 0;
+        if (!driveStatusText.isEmpty()) {
+            driveStatusText += QLatin1Char('\n');
+        }
+        driveStatusText += QStringLiteral("轴 %1 驱动：%2").arg(axis).arg(
+                    !driveFaultRead ? QStringLiteral("读取失败")
+                    : driveFault != 0 ? QStringLiteral("故障")
+                                     : QStringLiteral("正常"));
+        driveFaultDetected = driveFaultDetected || (driveFaultRead && driveFault != 0);
         if (!driveFaultRead || driveFault != 0) {
             driveFaultActive_ = true;
             driveFaultReason += driveFaultRead
@@ -3043,6 +3053,11 @@ bool Widget::refreshSafetyStatus()
                     : QStringLiteral("轴 %1 驱动故障输入读取失败；").arg(axis);
         }
     }
+    setStatusLabel(ui->label_driveFaultStatus, driveStatusText,
+                   driveFaultDetected ? QStringLiteral("#d32f2f")
+                   : driveFaultActive_ ? QStringLiteral("#757575")
+                                       : QStringLiteral("#388e3c"));
+    ui->label_driveFaultStatus->setToolTip(driveFaultReason);
 
     int hardwareEmergencyStop = 0;
     const bool emergencyStopRead = acsc_GetSafetyInput(hComm,

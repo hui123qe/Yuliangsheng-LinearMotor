@@ -72,6 +72,17 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
+             <widget class="QLabel" name="label_driveFaultStatus">
+              <property name="text">
+               <string>轴 0 驱动：未读取
+轴 1 驱动：未读取</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel { background-color: #757575; color: white; border-radius: 6px; padding: 2px 6px; }</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="pushButton_2">
               <property name="minimumSize">
                <size>
